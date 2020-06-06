@@ -25,4 +25,5 @@ setup-boot
 image-shrink
 image-gz
 
-umount-all
+# umount-all
+losetup -D
