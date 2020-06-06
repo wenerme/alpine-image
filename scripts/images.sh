@@ -1,6 +1,7 @@
 
+: ${IMAGE_SIZE:=2G}
 image-create(){
-  local size=${IMAGE_SIZE:-1G}
+  local size=$IMAGE_SIZE
   rm -f "$TARGET_IMG"
   truncate -s $size "$TARGET_IMG"
   everbose Crete image $TARGET_IMG $size
@@ -99,5 +100,5 @@ image-shrink(){
 image-gz(){
   everbose Compressing image to dist
   mkdir -p dist
-  pv "$TARGET_IMG" | pigz -9 -c > "dist/$TARGET_IMG.gz"
+  pigz -9 -c "$TARGET_IMG" > "dist/alpine-${FLAVOR}-${ALPINE_VERSION}.img.gz"
 }

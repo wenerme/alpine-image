@@ -13,10 +13,9 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - env:
-        FLAVOR: virt
-      run: |
-        ./docker-build.sh
+    - run: |
+        FLAVOR=virt ./docker-build.sh
+        FLAVOR=lts ./docker-build.sh
 
     - env:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}

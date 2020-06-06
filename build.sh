@@ -22,4 +22,7 @@ setup-user-admin
 setup-boot
 # bash
 
+image-shrink
+image-gz
+
 umount-all
