@@ -3,7 +3,8 @@ setup-rootfs(){
   tar zxf $(basename ${rootfs_url}) -C $MNT
 }
 chmnt(){
-  chroot $MNT /bin/sh -c "$*"
+  # chroot $MNT /bin/sh -c "$*"
+  chroot $MNT $*
 }
 
 setup-chroot(){
@@ -11,6 +12,11 @@ setup-chroot(){
   cp /etc/resolv.conf /alpine/etc/resolv.conf
   [ -d /etc/apk/cache ] && mkdir -p $MNT/etc/apk/cache && mount --bind /etc/apk/cache $MNT/etc/apk/cache 
 
+  chmnt uname -a || {
+    file $MNT/bin/busybox
+    chmnt /bin/sh -c 'echo PATH=$PATH'
+    eerror chroot failed
+  }
   chmnt apk add -q alpine-base
 }
 
