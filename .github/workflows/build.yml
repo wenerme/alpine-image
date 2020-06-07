@@ -24,7 +24,7 @@ jobs:
         # sudo mount binfmt_misc -t binfmt_misc /proc/sys/fs/binfmt_misc
 
         sudo apt update
-        sudo apt install -y qemu-user-static qemu-user-binfmt
+        sudo apt install -y qemu-user qemu-user-binfmt
 
     - run: ARCH=armhf FLAVOR=rpi ./docker-build.sh
     - run: ARCH=aarch64 FLAVOR=rpi ./docker-build.sh
