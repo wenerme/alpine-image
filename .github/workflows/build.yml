@@ -20,8 +20,8 @@ jobs:
         key: ${{ runner.os }}-build-cache
 
     - run: |
-        sudo modprobe binfmt_misc
-        sudo mount binfmt_misc -t binfmt_misc /proc/sys/fs/binfmt_misc
+        # sudo modprobe binfmt_misc
+        # sudo mount binfmt_misc -t binfmt_misc /proc/sys/fs/binfmt_misc
 
         sudo apt update
         sudo apt install -y qemu-user-static qemu-user-binfmt
