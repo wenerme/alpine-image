@@ -19,12 +19,15 @@ jobs:
         path: cache
         key: ${{ runner.os }}-build-cache
 
-    - run: apt install -y qemu-user-static
+    - run: |
+        sudo apt update
+        sudo apt install -y qemu-user-static
 
-    - run: FLAVOR=virt ./docker-build.sh
-    - run: FLAVOR=lts ./docker-build.sh
     - run: ARCH=armhf FLAVOR=rpi ./docker-build.sh
     - run: ARCH=aarch64 FLAVOR=rpi ./docker-build.sh
+    - run: FLAVOR=virt ./docker-build.sh
+    - run: FLAVOR=lts ./docker-build.sh
+
     - run: ls -hl dist
 
     # attach multi file https://github.com/github/hub/issues/1769#issuecomment-397271041
