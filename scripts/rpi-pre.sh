@@ -1,3 +1,4 @@
 IMAGE_MKFS_BOOT="mkfs.fat -F32"
+IMAGE_FDISK_OPTS="-H 255 -S 63"
 # win fat
 BOOT_PART_TYPE="c"

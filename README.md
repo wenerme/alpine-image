@@ -47,6 +47,12 @@ sudo dd if=${file%%.gz} of=/dev/sdb status=progress bs=64M
     * armhf - armv6
     * aarch64 - armv8 - arm64
 
+## Troubleshoting
+0. can not boot
+  * using qemu with kernel
+0. qemu with knernel can boot but can not direct boot
+  * fixing boot or mbr
+
 ## Dev
 
 ```bash
@@ -74,3 +80,41 @@ dd bs=440 conv=notrunc count=1 if=/usr/share/syslinux/mbr.bin of=/dev/loop0
 # dd bs=440 conv=notrunc count=1 if=mbr.bin of=alpine-x86_64-virt.img
 ```
 
+## Dev Pi
+
+```bash
+curl -O https://mirrors.tuna.tsinghua.edu.cn/alpine/v3.12/releases/aarch64/alpine-rpi-3.12.0-aarch64.tar.gz
+mkdir -p aarch64/rpi
+tar zxf alpine-rpi-3.12.0-aarch64.tar.gz -C aarch64/rpi
+
+
+ARCH=aarch64 FLAVOR=rpi ./docker-build.sh
+
+# aarch64 RPi 3B
+# Keybord and network seems not working
+#
+# cmdline for stdio
+# console=ttyAMA0,115200 kgdboc=ttyAMA0,115200 root=/dev/mmcblk0p2 rootfstype=ext4 rootwait
+# cmdline for pi
+# dwc_otg.lpm_enable=0 console=serial0,115200 console=tty1 root=/dev/mmcblk0p2 rootfstype=ext4 elevator=deadline fsck.repair=yes rootwait 
+# dtbs
+# bcm2710-rpi-3-b.dtb bcm2837-rpi-3-b.dtb
+qemu-system-aarch64 -M raspi3 \
+  -append "console=ttyAMA0,115200 kgdboc=ttyAMA0,115200 root=/dev/mmcblk0p2 rootfstype=ext4 rootwait" \
+  -serial stdio \
+  -dtb aarch64/rpi/bcm2837-rpi-3-b.dtb \
+  -kernel aarch64/rpi/boot/vmlinuz-rpi -initrd aarch64/rpi/boot/initramfs-rpi \
+  -sd alpine-aarch64-rpi.img
+
+# armhf RPi 3B
+wget -qcN https://mirrors.tuna.tsinghua.edu.cn/alpine/v3.12/releases/armhf/alpine-rpi-3.12.0-armhf.tar.gz
+mkdir -p armhf/rpi
+tar zxf alpine-rpi-3.12.0-armhf.tar.gz -C armhf/rpi
+
+qemu-system-arm -M raspi2 \
+  -append "console=ttyAMA0,115200 kgdboc=ttyAMA0,115200 root=/dev/mmcblk0p2 rootfstype=ext4 rootwait" \
+  -serial stdio \
+  -dtb armhf/rpi/bcm2710-rpi-2-b.dtb \
+  -kernel armhf/rpi/boot/vmlinuz-rpi2 -initrd armhf/rpi/boot/initramfs-rpi2 \
+  -sd alpine-armhf-rpi.img
+```

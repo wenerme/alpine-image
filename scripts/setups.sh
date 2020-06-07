@@ -11,15 +11,15 @@ setup-chroot(){
   cp /etc/resolv.conf /alpine/etc/resolv.conf
   [ -d /etc/apk/cache ] && mkdir -p $MNT/etc/apk/cache && mount --bind /etc/apk/cache $MNT/etc/apk/cache 
 
-  chmnt apk add alpine-base
+  chmnt apk add -q alpine-base
 }
 
 setup-kernel(){
-  chmnt apk add linux-$FLAVOR
+  chmnt apk add -q linux-$FLAVOR
 }
 
 setup-boot(){
-  chmnt apk add syslinux e2fsprogs
+  chmnt apk add -q syslinux e2fsprogs
   local kernel_opts="nomodeset quiet rootfstype=ext4"
   local modules="sd-mod,usb-storage,ext4"
   local root=$(blkid $ROOT_DEV | sed -nr 's/.*: (UUID="[^"]+").*/\1/p' | tr -d '"')
@@ -68,7 +68,7 @@ setup-service(){
 
 cat <<SH | chmnt /bin/sh
   [ ! -d /run/openrc ] && openrc sysinit
-  apk add openssh haveged
+  apk add -q openssh haveged
 
   echo ${SYSINIT_SERVICES} | tr ' ' '\n' | xargs -n1 -I {} rc-update --quiet add {} sysinit
   echo ${BOOT_SERVICES} | tr ' ' '\n' | xargs -n1 -I {} rc-update --quiet add {} boot

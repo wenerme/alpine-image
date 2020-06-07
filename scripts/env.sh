@@ -6,7 +6,7 @@
 [ -f "$conf" ] && . "$conf" || true
 
 : ${profile:=${FLAVOR}}
-[ -f "scripts/${profile}-pre.sh" ] && . "scripts/${profile}pre.sh" || true
+[ -f "scripts/${profile}-pre.sh" ] && . "scripts/${profile}-pre.sh" || true
 
 . scripts/functions.sh
 . scripts/utils.sh

@@ -13,7 +13,7 @@ image-partation(){
   # c - win fat32 -rpi
   local boot_part_type=${BOOT_PART_TYPE:-83}
   # -H 255 -S 63 
-  fdisk ${IMAGE_FDISK_OPTS} "$TARGET_IMG" <<-EOF
+  fdisk ${IMAGE_FDISK_OPTS} "$TARGET_IMG" <<-EOF > /dev/null
 o
 n
 p
@@ -31,6 +31,7 @@ a
 1
 w
 EOF
+  fdisk -l "$TARGET_IMG"
 }
 
 # preset

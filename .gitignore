@@ -9,3 +9,7 @@ dist
 ignored
 temp
 *.bin
+
+armhf
+aarch64
+armv7
