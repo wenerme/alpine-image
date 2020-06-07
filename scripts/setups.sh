@@ -13,8 +13,11 @@ setup-chroot(){
   [ -d /etc/apk/cache ] && mkdir -p $MNT/etc/apk/cache && mount --bind /etc/apk/cache $MNT/etc/apk/cache 
 
   chmnt uname -a || {
-    file $MNT/bin/busybox
-    chmnt /bin/sh -c 'echo PATH=$PATH'
+    file $MNT/bin/busybox $MNT/bin/sh
+    lddtree $MNT/bin/busybox
+    # chmnt /bin/busybox sh -c 'echo PATH=$PATH'
+    apk add strace
+    strace chroot $MNT /bin/busybox uname -a
     eerror chroot failed
   }
   chmnt apk add -q alpine-base
