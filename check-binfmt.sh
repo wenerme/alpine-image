@@ -20,6 +20,9 @@ miniroot aarch64 3.12.0
 
 apk add qemu-arm qemu-aarch64
 
+cp /usr/bin/qemu-arm arch/armhf/root/usr/bin/qemu-arm
+cp /usr/bin/qemu-aarch64 arch/aarch64/root/usr/bin/qemu-aarch64
+
 qemu-arm arch/armhf/root/bin/busybox uname -a
 arch/armhf/root/bin/busybox uname -a
 chroot arch/armhf/root uname -a
