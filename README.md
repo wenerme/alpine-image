@@ -2,6 +2,13 @@
 
 ![Build Image](https://github.com/wenerme/alpine-image/workflows/Build%20Image/badge.svg)
 
+__Features__
+
+* minimal build
+* disk image
+  * default to 2G
+    * [OPTIONAL] can shrink image
+
 > ⚠️
 >
 > Default user:password is `admin:admin`

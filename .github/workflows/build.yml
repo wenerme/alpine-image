@@ -19,6 +19,8 @@ jobs:
         path: cache
         key: ${{ runner.os }}-build-cache
 
+    - run: apt install -y qemu-user-static
+
     - run: FLAVOR=virt ./docker-build.sh
     - run: FLAVOR=lts ./docker-build.sh
     - run: ARCH=armhf FLAVOR=rpi ./docker-build.sh
