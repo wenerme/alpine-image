@@ -29,3 +29,8 @@ image-gz
 
 # umount-all
 losetup -D
+
+# cleanup
+mount-all
+clean
+umount-all

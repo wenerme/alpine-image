@@ -33,6 +33,7 @@ setup-chroot(){
     strace chroot $MNT /bin/busybox uname -a
     eerror chroot failed
   }
+  chmnt apk update
   chmnt apk add -q alpine-base
 }
 
@@ -110,4 +111,11 @@ setup-conf(){
 setup-packages(){
   local packages=${PACKAGES:-"nano htop curl wget bash bash-completion"}
   chmnt apk add $packages
+}
+
+clean(){
+  clean-chroot
+}
+clean-chroot(){
+  rm -rf $MNT/var/cache/apk/* $MNT/usr/bin/qemu-* || true
 }
