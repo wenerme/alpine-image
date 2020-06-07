@@ -1,6 +1,6 @@
 
 qemu-arch-detect(){
-  case $$1 in
+  case $1 in
   armhf)
     echo -n arm
     ;;
