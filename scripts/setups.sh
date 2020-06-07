@@ -12,18 +12,24 @@ setup-chroot(){
   cp /etc/resolv.conf /alpine/etc/resolv.conf
   [ -d /etc/apk/cache ] && mkdir -p $MNT/etc/apk/cache && mount --bind /etc/apk/cache $MNT/etc/apk/cache 
 
+  # none x86 need simulator
+   if case $ARCH in x86*) true;; *) false;; esac; then
+    apk add -q qemu-$QEMU_ARCH
+    cp /usr/bin/qemu-$QEMU_ARCH $MNT/usr/bin/qemu-$QEMU_ARCH
+  fi
+
   chmnt uname -a || {
     file $MNT/bin/busybox $MNT/bin/sh
     lddtree $MNT/bin/busybox
 
     apk add -q strace
-    # debug arm
-    if case $ARCH in arm*) true;; aarch*) true;; *) false;; esac; then
-      apk add -q qemu-$QEMU_ARCH
-      cp /usr/bin/qemu-$QEMU_ARCH $MNT/usr/bin/qemu-$QEMU_ARCH
-      # try sim
-      strace chroot $MNT /usr/bin/qemu-$QEMU_ARCH /bin/busybox uname -a
-    fi
+    # # debug arm
+    # if case $ARCH in arm*) true;; aarch*) true;; *) false;; esac; then
+    #   apk add -q qemu-$QEMU_ARCH
+    #   cp /usr/bin/qemu-$QEMU_ARCH $MNT/usr/bin/qemu-$QEMU_ARCH
+    #   # try sim
+    #   strace chroot $MNT /usr/bin/qemu-$QEMU_ARCH /bin/busybox uname -a
+    # fi
     strace chroot $MNT /bin/busybox uname -a
     eerror chroot failed
   }
