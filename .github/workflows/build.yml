@@ -26,6 +26,8 @@ jobs:
         sudo apt update
         sudo apt install -y qemu-user qemu-user-binfmt
 
+    - run: ./check-doker-binfmt.sh
+
     - run: ARCH=armhf FLAVOR=rpi ./docker-build.sh
     - run: ARCH=aarch64 FLAVOR=rpi ./docker-build.sh
     - run: FLAVOR=virt ./docker-build.sh

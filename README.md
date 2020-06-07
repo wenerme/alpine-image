@@ -60,6 +60,15 @@ sudo dd if=${file%%.gz} of=/dev/sdb status=progress bs=64M
 0. qemu with knernel can boot but can not direct boot
   * fixing boot or mbr
 
+## Check binfmt works
+
+```bash
+docker run -v --privileged -v /dev:/dev:ro \
+  -v "$PWD":/build -w /build \
+  -v "$PWD/cache/apk/${ARCH:-x86_64}:/etc/apk/cache" \
+  wener/base ./check-binfmt.sh
+```
+
 ## Dev
 
 ```bash
