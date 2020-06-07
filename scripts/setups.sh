@@ -15,14 +15,15 @@ setup-chroot(){
   chmnt uname -a || {
     file $MNT/bin/busybox $MNT/bin/sh
     lddtree $MNT/bin/busybox
+
+    apk add -q strace
     # debug arm
     if case $ARCH in arm*) true;; aarch*) true;; *) false;; esac; then
-      apk add qemu-$QEMU_ARCH
+      apk add -q qemu-$QEMU_ARCH
       cp /usr/bin/qemu-$QEMU_ARCH $MNT/usr/bin/qemu-$QEMU_ARCH
       # try sim
       strace chroot $MNT /usr/bin/qemu-$QEMU_ARCH /bin/busybox uname -a
     fi
-    apk add strace
     strace chroot $MNT /bin/busybox uname -a
     eerror chroot failed
   }
