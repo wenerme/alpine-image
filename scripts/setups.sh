@@ -1,5 +1,5 @@
 setup-rootfs(){
-  wget -q ${rootfs_url}
+  wget -qcN ${rootfs_url}
   tar zxf $(basename ${rootfs_url}) -C $MNT
 }
 chmnt(){

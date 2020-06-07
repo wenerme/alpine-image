@@ -1,5 +1,51 @@
 # AlpineLinux pre-build disk images
 
+![Build Image](https://github.com/wenerme/alpine-image/workflows/Build%20Image/badge.svg)
+
+> ⚠️
+>
+> Default user:password is `admin:admin`
+
+## How to use
+
+```bash
+# All release https://github.com/wenerme/alpine-image/releases
+# latest alpine-virt-3.12.img.gz
+file=alpine-virt-3.12.img.gz
+download_url=$(curl -s https://api.github.com/repos/wenerme/alpine-image/releases/latest | grep $file | sed -rn 's/.*?(https[^"]+).*/\1/p')
+curl -LOC- $download_url
+gzip -dk $file
+# start by using qemu
+qemu-system-x86_64 -hda ${file%%.gz}
+
+# write to disk or usb
+# macOS use rdisk
+sudo dd if=${file%%.gz} of=/dev/rdisk2 status=progress bs=64M
+# Linux use sdx
+sudo dd if=${file%%.gz} of=/dev/sdb status=progress bs=64M
+
+# now you can boot from the external storage
+```
+
+## Images
+* alpine-$FLAVOR-$VERSION-$ARCH.img
+  * FLAVOR
+    * virt
+      * for cloud env - aws, gce, aliyun
+      * for vm - qemu, libvirt
+      * linux without firmware
+    * ltx - Linux 5.14
+      * with firmwares
+      * can run on phy machines
+    * rpi
+      * Raspberry PI
+      * armhf - PiZero Pi 1
+      * armv7 - Pi 2, Pi 3
+      * aarch64 - Pi 3, Pi 4
+  * ARCH
+    * x86_64
+    * armhf - armv6
+    * aarch64 - armv8 - arm64
 
 ## Dev
 

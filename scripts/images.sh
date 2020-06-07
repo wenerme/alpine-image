@@ -62,7 +62,7 @@ umount-root(){
 }
 
 umount-loop(){
-  losetup -d "$LOOP_DEV"
+  losetup -d "$LOOP_DEV" || true
 }
 
 mount-all(){
@@ -89,7 +89,7 @@ image-shrink(){
 
   # shrink partition
   PART_END=$(($ROOT_PART_START + ($ROOT_MIN_SIZE * $ROOT_BLOCK_SIZE)))
-  parted ---pretend-input-tty "$TARGET_IMG" unit B resizepart 2 $PART_END yes
+  parted -s ---pretend-input-tty "$TARGET_IMG" unit B resizepart 2 $PART_END yes
   losetup -d "$LOOP_DEV"
 
   # truncate free space
@@ -100,5 +100,5 @@ image-shrink(){
 image-gz(){
   everbose Compressing image to dist
   mkdir -p dist
-  pigz -9 -c "$TARGET_IMG" > "dist/alpine-${FLAVOR}-${ALPINE_VERSION}.img.gz"
+  pigz -9 -c "$TARGET_IMG" > "dist/alpine-${ARCH}-${FLAVOR}-${ALPINE_VERSION}.img.gz"
 }

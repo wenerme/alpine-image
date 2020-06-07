@@ -12,12 +12,18 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - name: Build Cache
+      id: build-cache
+      uses: actions/cache@v2
+      with:
+        path: cache
+        key: ${{ runner.os }}-build-cache
 
-    - run: |
-        FLAVOR=virt ./docker-build.sh
-        FLAVOR=lts ./docker-build.sh
-        ls -hl dist
+    - run: FLAVOR=virt ./docker-build.sh
+    - run: FLAVOR=lts ./docker-build.sh
+    - run: ls -hl dist
 
+    # attach multi file https://github.com/github/hub/issues/1769#issuecomment-397271041
     - env:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       run: |
@@ -25,4 +31,8 @@ jobs:
         build_date=$(date +%Y%m%d)
         build_number=$[$(git tag | grep $build_date | wc -l) + 1]
         tag="$build_date.$build_number"
-        hub release create $tag -m "$tag" -a dist/*.gz
+        
+        assets=()
+        for f in "$asset_dir"/*; do [ -f "$f" ] && assets+=(-a "$f"); done
+
+        hub release create $tag -m "$tag" "${assets[@]}"

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -x
+set -ex
 
 . scripts/env.sh
 echo Loadded
@@ -22,7 +22,9 @@ setup-user-admin
 setup-boot
 # bash
 
-image-shrink
+# useless for gz asset
+# usefull for upload to ecs, aws, aliyun
+# image-shrink
 image-gz
 
 # umount-all

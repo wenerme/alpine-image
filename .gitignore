@@ -6,3 +6,6 @@ vmlinuz*
 initramfs*
 
 dist
+ignored
+temp
+*.bin
