@@ -22,6 +22,8 @@ apk add qemu-arm qemu-aarch64
 
 qemu-arm arch/armhf/root/bin/busybox uname -a
 arch/armhf/root/bin/busybox uname -a
+chroot arch/armhf/root uname -a
 
 qemu-aarch64 arch/aarch64/root/bin/busybox uname -a
 arch/aarch64/root/bin/busybox uname -a
+chroot arch/aarch64/root uname -a
