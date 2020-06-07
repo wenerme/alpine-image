@@ -12,9 +12,24 @@
 
 : "${TZ:=Asia/Shanghai}"
 
+: ${MNT:=/alpine}
+
+# detech qemu-arch
+if [ -n $QEMU_ARCH ]; then
+
+case $ARCH in
+armhf)
+  QEMU_ARCH=arm
+  ;;
+*)
+  QEMU_ARCH=$ARCH
+  ;;
+esac
+
+fi
+
 mirror_base=${ALPINE_MIRROR}/${ALPINE_BRANCH}
 rootfs_url="${ALPINE_MIRROR}/${ALPINE_BRANCH}/releases/${ARCH}/alpine-minirootfs-${ALPINE_RELEASE}-${ARCH}.tar.gz"
-
 
 print-preset(){
   echo "==============================
@@ -24,5 +39,3 @@ Alpine ${ARCH} ${ALPINE_RELEASE}
   image ${TARGET_IMG}
 =============================="
 }
-
-: ${MNT:=/alpine}
