@@ -3,7 +3,7 @@ setup-rootfs(){
   tar zxf $(basename ${rootfs_url}) -C $MNT
 }
 chmnt(){
-  chroot $MNT $*
+  chroot $MNT /bin/sh -c "$*"
 }
 
 setup-chroot(){
