@@ -30,9 +30,9 @@ ${ROOT_DEV} : type=83
 CONF
 
 #
-: ${PASSWORD:=$(uuidgen)}
+: ${PASSWORD:=$(uuidgen | tr -d '\n')}
 [ -f key.txt ] || {
-  echo $PASSWORD -n > key.txt
+  echo -n $PASSWORD > key.txt
 }
 
 yes | cryptsetup -y -v luksFormat $ROOT_DEV -d key.txt
@@ -65,6 +65,7 @@ mkinitfs -c /mnt/etc/mkinitfs/mkinitfs.conf -b /mnt/ $(ls /mnt/lib/modules/)
 # cryptroot=UUID=<UUID> cryptdm=cryptroot
 # other options - https://github.com/alpinelinux/mkinitfs/blob/961726b6aeb8e12176009675f22ed0ffc2b26e14/initramfs-init.in#L443-L482
 sed -i -r "s/^(default_kernel_opts)=\"([^\"]*)\"/\1=\"\2 cryptroot=UUID=$(blkid ${ROOT_DEV} -o value | head -n 1) cryptdm=cryptroot\"/" /mnt/etc/update-extlinux.conf
+chroot /mnt update-extlinux
 
 umount -R $ROOT_MNT
 cryptsetup close cryptroot
