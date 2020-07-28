@@ -98,6 +98,7 @@ dd bs=440 conv=notrunc count=1 if=/usr/share/syslinux/mbr.bin of=/dev/loop0
 
 # Local Playground
 docker run --rm -it \
+  --privileged -v /dev:/dev:ro \
   -v "$PWD/cache/apk/${ARCH:-x86_64}:/etc/apk/cache" \
   -v "$PWD":/build -w /build \
   --name builder wener/alpine-image-builder
