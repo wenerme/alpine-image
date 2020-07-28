@@ -4,10 +4,11 @@
 
 __Features__
 
-* minimal build
-* disk image
+* Minimal build
+* Raw disk image
   * default to 2G
     * [OPTIONAL] can shrink image
+* Auto build - based on GitHub Actions
 
 > ⚠️
 >
@@ -94,6 +95,12 @@ qemu-system-x86_64 -accel hvf -hda alpine-x86_64-virt.img \
 # MBR fix
 dd bs=440 conv=notrunc count=1 if=/usr/share/syslinux/mbr.bin of=/dev/loop0
 # dd bs=440 conv=notrunc count=1 if=mbr.bin of=alpine-x86_64-virt.img
+
+# Local Playground
+docker run --rm -it \
+  -v "$PWD/cache/apk/${ARCH:-x86_64}:/etc/apk/cache" \
+  -v "$PWD":/build -w /build \
+  --name builder wener/alpine-image-builder
 ```
 
 ## Dev Pi
@@ -134,3 +141,22 @@ qemu-system-arm -M raspi2 \
   -kernel armhf/rpi/boot/vmlinuz-rpi2 -initrd armhf/rpi/boot/initramfs-rpi2 \
   -sd alpine-armhf-rpi.img
 ```
+
+## Roadmap
+
+* more arch
+  * x390
+* uboot booting non x86
+
+## Local builds
+
+```bash
+ARCH=armhf FLAVOR=rpi ./docker-build.sh
+ARCH=aarch64 FLAVOR=rpi ./docker-build.sh
+FLAVOR=virt ./docker-build.sh
+FLAVOR=lts ./docker-build.sh
+```
+
+# Seealso
+
+* [knoopx/alpine-raspberry-pi](https://github.com/knoopx/alpine-raspberry-pi)

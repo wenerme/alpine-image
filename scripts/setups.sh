@@ -13,7 +13,8 @@ setup-chroot(){
   [ -d /etc/apk/cache ] && mkdir -p $MNT/etc/apk/cache && mount --bind /etc/apk/cache $MNT/etc/apk/cache 
 
   # none x86 need simulator
-   if case $ARCH in x86*) false;; *) true;; esac; then
+  apk update
+  if case $ARCH in x86*) false;; *) true;; esac; then
     apk add -q qemu-$QEMU_ARCH
     cp /usr/bin/qemu-$QEMU_ARCH $MNT/usr/bin/qemu-$QEMU_ARCH
   fi
@@ -117,5 +118,5 @@ clean(){
   clean-chroot
 }
 clean-chroot(){
-  rm -rf $MNT/var/cache/apk/* $MNT/usr/bin/qemu-* || true
+  rm -rf $MNT/var/cache/apk/* $MNT/usr/bin/qemu-* $MNT/etc/resolv.conf || true
 }

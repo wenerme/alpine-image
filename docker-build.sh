@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 
-QUIET=1 . scripts/preset.sh
+. scripts/functions.sh
+. scripts/utils.sh
+. scripts/preset.sh
+
 . scripts/docker-run.sh
 
 # env passthrough
