@@ -1,9 +1,10 @@
 SHELL=/bin/bash
 
-arch:=x86_64
-version:=3.12.0
-ver:=3.12
-mirror:=https://mirrors.aliyun.com/alpine
+arch?=x86_64
+version?=3.12.0
+ver?=3.12
+mirror?=https://mirrors.aliyun.com/alpine
+flavor?=x86_64
 
 minirootfs.tar.gz:=alpine-minirootfs-${version}-${arch}.tar.gz
 minirootfs_url:=${mirror}/v${ver}/releases/${arch}/$(minirootfs.tar.gz)
@@ -37,3 +38,14 @@ sysfs.apkvol.tar.gz: sysfs
 artifacts/sysfs.apkvol.tar.gz: sysfs.apkvol.tar.gz
 	mkdir -p artifacts
 	cp sysfs.apkvol.tar.gz artifacts
+
+mount:
+	flavor=$(flavor) $(cwd)/scripts/loopdev-mnt.sh
+
+umount:
+	- findmnt /mnt && umount -R /mnt
+	- losetup -d /dev/loop0
+
+# alpine-$FLAVOR-$VERSION-$ARCH.img
+alpine.img: mount umount
+	@echo ARCH $(arch) $(version)
