@@ -14,6 +14,28 @@ __Features__
 >
 > Default user:password is `admin:admin`
 
+## Directory
+* `scripts/`
+  * alpine.pkr.hcl
+    * standard alpine installation
+      * version = 3.12.0
+      * mirror = https://mirrors.aliyun.com/alpine
+      * flavor = virt, lts
+      * format = qcow2
+      * size = 40G
+      * accel = hvf (macOS), kvm, none
+* `artifacts/` - prebuild apkvol, makes install predictable, cleaner, faster
+  * sysfs.apkvol.tar.gz
+    * build by sysfs
+    * user `root:root`
+    * dns `114.114.114.114`
+    * service sshd, acpid, ntpd
+    * extra service - haveged
+      * highly recommanded for virt
+    * setup timezone(Asia/Shanghai), keymap
+  * rootfs.apkvol.tar.gz
+    * minimal apkvol
+
 ## How to use
 
 ```bash

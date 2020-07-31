@@ -17,3 +17,7 @@ armv7
 
 /rootfs
 /sysfs
+.git
+packer_cache
+images/
+packer/
