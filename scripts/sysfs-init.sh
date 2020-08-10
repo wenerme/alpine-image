@@ -1,20 +1,17 @@
 #!/bin/bash
 set -ex
 
+: ${arch:=x85_64}
 : ${MNT:="$PWD/sysfs"}
 
-#
-cp /etc/apk/repositories sysfs/etc/apk/
-apk --root sysfs add alpine-conf
-#
 cp /etc/apk/repositories sysfs/etc/apk/repositories
 echo nameserver 114.114.114.114 > sysfs/etc/resolv.conf
-#
-apk --root sysfs/ add alpine-base e2fsprogs openssh-server haveged haveged-openrc
+# minimal packages
+apk --root sysfs/ --arch $arch add alpine-base e2fsprogs openssh-server haveged haveged-openrc
 #
 echo root:root | chroot sysfs chpasswd
 
-cat <<EOF > $MNT/etc/network/interfaces
+cat <<EOF > sysfs/etc/network/interfaces
 auto lo
 iface lo inet loopback
 

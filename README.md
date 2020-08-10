@@ -2,6 +2,15 @@
 
 ![Build Image](https://github.com/wenerme/alpine-image/workflows/Build%20Image/badge.svg)
 
+```bash
+# building images
+
+# flavor=virt format=qcow2
+make images/virt/alpine.qcow2
+# flavor=lts format=raw
+make images/virt/alpine.raw
+```
+
 __Features__
 
 * Minimal build

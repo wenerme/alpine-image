@@ -17,6 +17,12 @@ minirootfs_url:=${mirror}/v${ver}/releases/${arch}/$(minirootfs.tar.gz)
 # for relative scripts
 cwd := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 
+# QEMU Accel
+accel_Darwin	:=hvf
+accel_Linux		:=kvm
+platform		:=$(shell uname -s)
+accel			?=$(accel_$(platform))
+
 love:
 	@echo No target
 	@exit 1
@@ -40,18 +46,31 @@ rootfs.apkvol.tar.gz: rootfs
 	chroot rootfs/ lbu pkg rootfs.apkvol.tar.gz
 	mv rootfs/rootfs.apkvol.tar.gz .
 
-sysfs: $(cwd)/scripts/sysfs-init.sh
+sysfs: $(cwd)/scripts/sysfs-init.sh $(minirootfs.tar.gz)
 	mkdir -p sysfs
 	tar zxf $(minirootfs.tar.gz) -C sysfs
-	$(cwd)/scripts/sysfs-init.sh
+	arch=$(arch) $(cwd)/scripts/sysfs-init.sh
+	echo Alpine $(arch) $(version) sysfs
 
 sysfs.apkvol.tar.gz: sysfs
 	chroot sysfs/ lbu pkg sysfs.apkvol.tar.gz
 	mv sysfs/sysfs.apkvol.tar.gz .
 
+# /etc/apk/arch = apk --print-arch
+sysfs.%.apkvol.tar.gz:
+	rm -rf sysfs sysfs.apkvol.tar.gz
+	arch=$* $(MAKE) sysfs.apkvol.tar.gz
+	cp sysfs.apkvol.tar.gz sysfs.$*.apkvol.tar.gz
+	echo Alpine $(arch) $(version) sysfs.apkvol.tar.gz
+
 artifacts/sysfs.apkvol.tar.gz: sysfs.apkvol.tar.gz
 	mkdir -p artifacts
 	cp sysfs.apkvol.tar.gz artifacts
+
+artifacts/sysfs.%.apkvol.tar.gz:
+	mkdir -p artifacts
+	$(MAKE) sysfs.$*.apkvol.tar.gz
+	cp sysfs.$*.apkvol.tar.gz $@
 
 mount:
 	flavor=$(flavor) $(cwd)/scripts/loopdev-mnt.sh
@@ -86,7 +105,7 @@ alpine-aarch64-rpi4.img:
 packer/alpine/virt/%/packer-alpine:
 	PACKER_LOG=$(verbose) packer build $(PACKER_FLAGS) \
 		-var=dist=packer/alpine/virt/$* \
-		-var=flavor=lts -var=format=$* \
+		-var=flavor=virt -var=format=$* \
 		scripts/alpine.pkr.hcl
 images/virt/alpine.%: packer/alpine/virt/%/packer-alpine
 	mkdir -p images/virt
