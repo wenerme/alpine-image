@@ -9,15 +9,6 @@ jqi() {
   version=$(cat ../VERSION)
 }
 
-[ -z "$accel" ] && {
-  accel=tcg
-  [ $(uname -s) = "Darwin" ] && {
-    accel=hvf
-  }
-  [ $(uname -s) = "Linux" ] && {
-    accel=kvm
-  }
-}
 
 : ${arch:=x86_64}
 qemu_arch=$arch
@@ -39,18 +30,18 @@ esac
   qemu_binary=qemu-system-$qemu_arch
 }
 
-[ "$qemu_arch" != $(uname -m) ] && {
-  accel=tcg
+[ -z "$accel" ] && {
+  accel=$($qemu_binary -accel ? | tail -1)
 }
 
 [ -z "$boot_wait" -a "$accel" != tcg ] && {
-  boot_wait="10s"
+  boot_wait="15s"
 }
 
 # generate local vars
 echo '{}' > local.auto.pkrvars.json
 
-for var in accel boot_wait dist flavor format size version qemu_binary qemu_machine_type; do
+for var in arch accel boot_wait dist flavor format size version qemu_binary qemu_machine_type; do
   [ -z "${!var}" ] || jqi ".$var=\"${!var}\"" local.auto.pkrvars.json
 done
 

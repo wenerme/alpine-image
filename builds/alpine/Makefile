@@ -3,7 +3,7 @@ SHELL=/bin/bash
 build:
 	./pre.sh
 	rm -rf $$(jq -r .dist local.final.json)
-	[ -e dist/$$(jq -r .image local.final.json) ] && echo exist
+	[ -e dist/$$(jq -r .image local.final.json) ] && false || true
 	PACKER_LOG=$(verbose) \
 	packer build $(PACKER_FLAGS) .
 	mkdir -p dist
