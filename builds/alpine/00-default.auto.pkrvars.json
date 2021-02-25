@@ -1,0 +1,12 @@
+{
+  "accel": "tcg",
+  "arch": "x86_64",
+  "boot_wait": "30s",
+  "dist": "images",
+  "flavor": "virt",
+  "format": "qcow2",
+  "qemu_binary": "qemu-system-x86_64",
+  "qemu_machine_type": "pc",
+  "size": "40G",
+  "version": "3.13.0"
+}
