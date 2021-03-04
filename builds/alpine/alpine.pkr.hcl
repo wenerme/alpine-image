@@ -1,4 +1,5 @@
 variable "mirror" {
+  # default = "https://mirrors.aliyun.com/alpine"
   default = "https://mirrors.sjtug.sjtu.edu.cn/alpine"
 }
 variable "version" {
@@ -35,6 +36,9 @@ variable "qemu_binary" {
 variable "qemu_machine_type" {
   default = "pc"
 }
+variable "qemu_net_device" {
+  default = "virtio-net"
+}
 
 variable "checksums" {
   description = "checksums of iso"
@@ -54,7 +58,7 @@ source "qemu" "alpine" {
   accelerator  = var.accel
   qemu_binary  = var.qemu_binary
   machine_type = var.qemu_machine_type
-  net_device  =  "virtio-net"
+  net_device   = var.qemu_net_device
 
   ssh_username = "root"
   ssh_password = "root"
@@ -82,15 +86,8 @@ build {
   source "qemu.alpine" {}
 
   provisioner "shell" {
-
-    inline = [
-      <<-EOF
-echo Building $${ALPINE_VER} using $${ALPINE_MIRROR}
-echo $${ALPINE_MIRROR}/v$${ALPINE_VER}/main > /etc/apk/repositories
-echo $${ALPINE_MIRROR}/v$${ALPINE_VER}/community >> /etc/apk/repositories
-rc-update add networking
-ERASE_DISKS=/dev/vda setup-disk -m sys -s 0 -k $${ALPINE_FLAVOR} /dev/vda
-EOF
+    scripts = [
+      "./install.sh",
     ]
     environment_vars = [
       "ALPINE_MIRROR=${var.mirror}",

@@ -15,3 +15,6 @@ boot:
 .PHONEY: clean
 clean:
 	rm -rf images packer_cache
+
+fmt:
+	packer fmt .
