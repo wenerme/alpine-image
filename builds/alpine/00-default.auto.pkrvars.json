@@ -5,6 +5,7 @@
   "dist": "images",
   "flavor": "virt",
   "format": "qcow2",
+  "iso": "alpine-virt-3.13.0-x86_64.iso",
   "qemu_binary": "qemu-system-x86_64",
   "qemu_machine_type": "pc",
   "qemu_net_device": "virtio-net",

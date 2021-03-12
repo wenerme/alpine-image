@@ -19,6 +19,9 @@ variable "arch" {
   default     = "x86_64"
   description = "arch of vm"
 }
+variable "iso" {
+  default     = "alpine-virt-3.13.0-x86_64.iso"
+}
 variable "accel" {
   default     = "tcg"
   description = "hvf for macOS, kvm for Linux"
@@ -50,15 +53,15 @@ locals {
 }
 
 source "qemu" "alpine" {
-  iso_url      = "${var.mirror}/v${local.ver}/releases/${var.arch}/alpine-${var.flavor}-${var.version}-${var.arch}.iso"
-  iso_checksum = var.checksums["alpine-${var.flavor}-${var.version}-${var.arch}.iso"]
+  iso_url      = "${var.mirror}/v${local.ver}/releases/${var.arch}/${var.iso}"
+  iso_checksum = var.checksums[var.iso]
 
   // display = "cocoa"
   headless     = true
   accelerator  = var.accel
   qemu_binary  = var.qemu_binary
   machine_type = var.qemu_machine_type
-  net_device   = var.qemu_net_device
+  # net_device   = var.qemu_net_device
 
   ssh_username = "root"
   ssh_password = "root"
@@ -84,6 +87,18 @@ source "qemu" "alpine" {
 
 build {
   source "qemu.alpine" {}
+
+  # QEMU resolv may not work
+  provisioner "shell" {
+    inline = [
+      "echo nameserver 114.114.114.114 > /etc/resolve.conf"
+    ]
+  }
+
+  provisioner "breakpoint" {
+    disable = true
+    note = "debug vm before install"
+  }
 
   provisioner "shell" {
     scripts = [
