@@ -1,8 +1,9 @@
 #!/bin/bash
 set -ex
 
+apk add cryptsetup util-linux coreutils shadow sudo
 # reset
-umount -R /mnt
+umount -R /mnt || true
 losetup -D
 [ -e /dev/mapper/cryptroot ] && cryptsetup close cryptroot
 
@@ -59,7 +60,7 @@ apk --root $ROOT_MNT add syslinux
 # boot
 apk --root /mnt add cryptsetup
 echo 'features="ata base ide scsi usb virtio ext4 cryptsetup cryptkey"' > /mnt/etc/mkinitfs/mkinitfs.conf
-mkinitfs -c /mnt/etc/mkinitfs/mkinitfs.conf -b /mnt/ $(ls /mnt/lib/modules/)
+mkinitfs -c /mnt/etc/mkinitfs/mkinitfs.conf -i /mnt/usr/share/mkinitfs/initramfs-init -b /mnt/ $(ls /mnt/lib/modules/)
 
 # add cryptroot
 # cryptroot=UUID=<UUID> cryptdm=cryptroot

@@ -106,6 +106,7 @@ packer/alpine/virt/%/packer-alpine:
 	PACKER_LOG=$(verbose) packer build $(PACKER_FLAGS) \
 		-var=dist=packer/alpine/virt/$* \
 		-var=flavor=virt -var=format=$* \
+		-var=accel=$(accel) \
 		scripts/alpine.pkr.hcl
 images/virt/alpine.%: packer/alpine/virt/%/packer-alpine
 	mkdir -p images/virt
@@ -115,10 +116,18 @@ packer/alpine/lts/%/packer-alpine:
 	PACKER_LOG=$(verbose) packer build $(PACKER_FLAGS) \
 		-var=dist=packer/alpine/lts/$* \
 		-var=flavor=lts -var=format=$* \
+		-var=accel=$(accel) \
 		scripts/alpine.pkr.hcl
 images/lts/alpine.%: packer/alpine/lts/%/packer-alpine
 	mkdir -p images/lts
 	cp $^ $@
+
+builder.qcow2: images/virt/alpine.qcow2
+
+dev: images/virt/alpine.qcow2
+	[ ! -e test.qcow2 ] && cp images/virt/alpine.qcow2 test.qcow2 || true
+	qemu-system-x86_64 -accel $(accel) -m 4G -smp 2 -net nic -nic user,hostfwd=tcp::2222-:22 -drive if=virtio,file=test.qcow2
+	# ssh root@127.0.0.1 -p 2222 -o StrictHostKeyChecking=no
 
 clean:
 	-rm -rf packer

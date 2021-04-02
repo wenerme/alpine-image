@@ -8,7 +8,7 @@
 # flavor=virt format=qcow2
 make images/virt/alpine.qcow2
 # flavor=lts format=raw
-make images/virt/alpine.raw
+make images/lts/alpine.raw
 ```
 
 __Features__

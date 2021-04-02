@@ -21,3 +21,6 @@ armv7
 packer_cache
 images/
 packer/
+
+local*.json
+*.iso
