@@ -1,7 +1,7 @@
 # Generate checksum
 
 ```bash
-cat {v3.13,v3.12}/releases/{x86_64,aarch64,x86,armhf,armv7}/alpine-*.sha256 | grep -v -e _rc -e xen -e miniroot -e netboot > checksums.txt
+cat {v3.14,v3.13,v3.12}/releases/{x86_64,aarch64,x86,armhf,armv7}/alpine-*.sha256 | grep -v -e _rc -e xen -e miniroot -e netboot > checksums.txt
 
 cat checksums.txt | awk ' { t = $1; $1 = $2; $2 = t; print; } ' | sort > checksums-sort.txt
 

@@ -30,6 +30,10 @@ variable "boot_wait" {
   default     = "10s"
   description = "if no accel, should set at least 30s"
 }
+variable "efi" {
+  default     = ""
+  description = "set to 1 to use efi"
+}
 variable "dist" {
   default = "images"
 }
@@ -108,6 +112,7 @@ build {
       "ALPINE_MIRROR=${var.mirror}",
       "ALPINE_FLAVOR=${var.flavor}",
       "ALPINE_VER=${local.ver}",
+      "USE_EFI=${var.efi}",
     ]
   }
 }

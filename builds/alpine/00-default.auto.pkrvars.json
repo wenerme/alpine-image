@@ -3,6 +3,7 @@
   "arch": "x86_64",
   "boot_wait": "30s",
   "dist": "images",
+  "efi": "",
   "flavor": "virt",
   "format": "qcow2",
   "iso": "alpine-virt-3.13.0-x86_64.iso",

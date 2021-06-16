@@ -43,7 +43,7 @@ esac
 # generate local vars
 echo '{}' > local.auto.pkrvars.json
 
-for var in arch accel boot_wait dist flavor format size version qemu_binary qemu_machine_type iso; do
+for var in efi arch accel boot_wait dist flavor format size version qemu_binary qemu_machine_type iso; do
   [ -z "${!var}" ] || jqi ".$var=\"${!var}\"" local.auto.pkrvars.json
 done
 
