@@ -5,45 +5,58 @@
 ```bash
 # building images
 
+# docker based building
 # flavor=virt format=qcow2
 make images/virt/alpine.qcow2
 # flavor=lts format=raw
 make images/lts/alpine.raw
+
+# packer based building
+cd builds/alpine
+efi=1 flavor=lts format=raw make
 ```
 
-__Features__
+> pre-build disk image can be download from [releases](https://github.com/wenerme/alpine-image/releases)
 
-* Minimal build
-* Raw disk image
-  * default to 2G
-    * [OPTIONAL] can shrink image
-* Auto build - based on GitHub Actions
+**Features**
+
+- Minimal build
+- Raw disk image
+  - default to 2G
+    - [OPTIONAL] can shrink image
+- Auto build - based on GitHub Actions
 
 > ⚠️
 >
-> Default user:password is `admin:admin`
+> Default user:password is `admin:admin` or `root:root`
 
 ## Directory
-* `scripts/`
-  * alpine.pkr.hcl
-    * standard alpine installation
-      * version = 3.12.0
-      * mirror = https://mirrors.aliyun.com/alpine
-      * flavor = virt, lts
-      * format = qcow2
-      * size = 40G
-      * accel = hvf (macOS), kvm, none
-* `artifacts/` - prebuild apkvol, makes install predictable, cleaner, faster
-  * sysfs.apkvol.tar.gz
-    * build by sysfs
-    * user `root:root`
-    * dns `114.114.114.114`
-    * service sshd, acpid, ntpd
-    * extra service - haveged
-      * highly recommanded for virt
-    * setup timezone(Asia/Shanghai), keymap
-  * rootfs.apkvol.tar.gz
-    * minimal apkvol
+
+- `builds/`
+  - `alpine/`
+    - packer based base image builder
+  - `sysfs.apkvol/`
+    - build sysfs.apkvol for later installer
+- `scripts/`
+  - alpine.pkr.hcl
+    - standard alpine installation
+      - version = 3.12.0
+      - mirror = https://mirrors.aliyun.com/alpine
+      - flavor = virt, lts
+      - format = qcow2
+      - size = 40G
+      - accel = hvf (macOS), kvm, none
+- `artifacts/` - prebuild apkvol, makes install predictable, cleaner, faster
+  - sysfs.apkvol.tar.gz
+    - build by sysfs
+    - user `root:root`
+    - dns `114.114.114.114`
+    - service sshd, acpid, ntpd
+    - extra service - haveged
+      - highly recommanded for virt
+    - setup timezone(Asia/Shanghai), keymap
+  - rootfs.apkvol.tar.gz
+    - minimal apkvol
 
 ## How to use
 
@@ -67,30 +80,35 @@ sudo dd if=${file%%.gz} of=/dev/sdb status=progress bs=64M
 ```
 
 ## Images
-* alpine-$FLAVOR-$VERSION-$ARCH.img
-  * FLAVOR
-    * virt
-      * for cloud env - aws, gce, aliyun
-      * for vm - qemu, libvirt
-      * linux without firmware
-    * ltx - Linux 5.14
-      * with firmwares
-      * can run on phy machines
-    * rpi
-      * Raspberry PI
-      * armhf - PiZero Pi 1
-      * armv7 - Pi 2, Pi 3
-      * aarch64 - Pi 3, Pi 4
-  * ARCH
-    * x86_64
-    * armhf - armv6
-    * aarch64 - armv8 - arm64
+
+- alpine-$FLAVOR-$VERSION-$ARCH.img
+  - FLAVOR
+    - virt
+      - for cloud env - aws, gce, aliyun
+      - for vm - qemu, libvirt
+      - linux without firmware
+    - ltx - Linux 5.14
+      - with firmwares
+      - can run on phy machines
+    - rpi
+      - Raspberry PI
+      - armhf - PiZero Pi 1
+      - armv7 - Pi 2, Pi 3
+      - aarch64 - Pi 3, Pi 4
+  - ARCH
+    - x86_64
+    - armhf - armv6
+    - aarch64 - armv8 - arm64
 
 ## Troubleshoting
+
 0. can not boot
-  * using qemu with kernel
+
+- using qemu with kernel
+
 0. qemu with knernel can boot but can not direct boot
-  * fixing boot or mbr
+
+- fixing boot or mbr
 
 ## Check binfmt works
 
@@ -151,7 +169,7 @@ ARCH=aarch64 FLAVOR=rpi ./docker-build.sh
 # cmdline for stdio
 # console=ttyAMA0,115200 kgdboc=ttyAMA0,115200 root=/dev/mmcblk0p2 rootfstype=ext4 rootwait
 # cmdline for pi
-# dwc_otg.lpm_enable=0 console=serial0,115200 console=tty1 root=/dev/mmcblk0p2 rootfstype=ext4 elevator=deadline fsck.repair=yes rootwait 
+# dwc_otg.lpm_enable=0 console=serial0,115200 console=tty1 root=/dev/mmcblk0p2 rootfstype=ext4 elevator=deadline fsck.repair=yes rootwait
 # dtbs
 # bcm2710-rpi-3-b.dtb bcm2837-rpi-3-b.dtb
 qemu-system-aarch64 -M raspi3 \
@@ -176,9 +194,9 @@ qemu-system-arm -M raspi2 \
 
 ## Roadmap
 
-* more arch
-  * x390
-* uboot booting non x86
+- more arch
+  - x390
+- uboot booting non x86
 
 ## Local builds
 
@@ -191,4 +209,4 @@ FLAVOR=lts ./docker-build.sh
 
 # Seealso
 
-* [knoopx/alpine-raspberry-pi](https://github.com/knoopx/alpine-raspberry-pi)
+- [knoopx/alpine-raspberry-pi](https://github.com/knoopx/alpine-raspberry-pi)
