@@ -102,6 +102,18 @@ sudo dd if=${file%%.gz} of=/dev/sdb status=progress bs=64M
 
 ## Troubleshoting
 
+## flash to disk under macOS
+
+```bash
+# which disk to flush to
+diskutil list
+
+DISK=disk3
+diskutil umountdisk $DISK
+
+sudo dd if=dist/alpine-lts-3.15.0-x86_64-efi.raw of=/dev/r$DISK conv=sparse status=progress bs=128MB
+```
+
 ### can not boot
 
 using qemu with kernel
