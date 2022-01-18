@@ -11,6 +11,7 @@ flavor=lts format=raw make
 | arch              | x86_64                            |
 | boot_wait         | 30s                               |
 | dist              | images                            |
+| efi               | `1` - build a uefi image          |
 | flavor            | virt                              |
 | format            | qcow2                             |
 | iso               | alpine-$flavor-$version-$arch.iso |
@@ -19,6 +20,3 @@ flavor=lts format=raw make
 | qemu_net_device   | virtio-net                        |
 | size              | 40G                               |
 | version           | builds/VERSION                    |
-| efi               |                                   |
-
-> set efi to `1` to build a uefi image

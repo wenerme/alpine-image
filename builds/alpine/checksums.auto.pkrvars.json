@@ -196,6 +196,7 @@
     "alpine-virt-3.14.0-armv7.iso": "159bc48ecba7d406fe13fed76ec7730fe87822d02e1d5106ee9b1e7ee426e70b",
     "alpine-virt-3.14.0-x86.iso": "6dd0d8a10d5c38cf70032cb4f7397054759fa346a9eed6f7b50d62a6932438ed",
     "alpine-virt-3.14.0-x86_64.iso": "d568c6c71bb1eee0f65cdf40088daf57032e24f1e3bd2cf8a813f80d2e9e4eab",
-    "": ""
+    "alpine-standard-3.15.0-x86_64.iso": "d8d3822b6fd8dd52d86b9b147ea218671eeb3df381dc2b9235f8f6e10c97008d",
+    "alpine-virt-3.15.0-x86_64.iso": "e97eaedb3bff39a081d1d7e67629d5c0e8fb39677d6a9dd1eaf2752e39061e02"
   }
 }

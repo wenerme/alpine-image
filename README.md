@@ -102,13 +102,13 @@ sudo dd if=${file%%.gz} of=/dev/sdb status=progress bs=64M
 
 ## Troubleshoting
 
-0. can not boot
+### can not boot
 
-- using qemu with kernel
+using qemu with kernel
 
-0. qemu with knernel can boot but can not direct boot
+### qemu with knernel can boot but can not direct boot
 
-- fixing boot or mbr
+fixing boot or mbr
 
 ## Check binfmt works
 

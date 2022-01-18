@@ -53,6 +53,10 @@ jq -s add 00-default.auto.pkrvars.json local.auto.pkrvars.json > local.final.jso
 jqv() {
   jq -r .$1 local.final.json
 }
-image=alpine-$(jqv flavor)-$(jqv version)-$(jqv arch).$(jqv format)
+image=alpine-$(jqv flavor)-$(jqv version)-$(jqv arch)
+[ -n "$(jqv efi)" ] && {
+  image=$image-efi
+}
+image=$image.$(jqv format)
 jqi ".image=\"${image}\"" local.final.json
 cat local.final.json

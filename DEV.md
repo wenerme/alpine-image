@@ -59,3 +59,11 @@ sudo dd if=images/alpine-lts-3.13.2-x86_64.raw of=/dev/sda conv=sparse status=pr
 # -device virtio-net,netdev=n1,mac=52:54:00:12:34:60 - use different mac
 qemu-system-x86_64 -accel kvm -m 1G -vnc :1 /dev/sda -curses -netdev bridge,br=br0,id=n1 -device virtio-net,netdev=n1
 ```
+
+## test image
+
+```bash
+qemu-system-x86_64 -accel hvf -m 1G -drive file=dist/alpine-virt-3.14.0-x86_64.qcow2 -net nic -net user,hostfwd=tcp::2222-:22
+# ssh login root:root
+ssh -o PreferredAuthentications=password -o PubkeyAuthentication=no root@127.0.0.1 -p 2222
+```
