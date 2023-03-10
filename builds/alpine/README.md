@@ -3,6 +3,7 @@
 ```bash
 # Build dist/alpine-lts-3.13.5-x86_64.raw
 flavor=lts format=raw make
+efi=1 flavor=lts format=raw make
 ```
 
 | var               | default                           |

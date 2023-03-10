@@ -57,6 +57,8 @@ image=alpine-$(jqv flavor)-$(jqv version)-$(jqv arch)
 [ -n "$(jqv efi)" ] && {
   image=$image-efi
 }
+image=$image-$(jqv size)
+
 image=$image.$(jqv format)
 jqi ".image=\"${image}\"" local.final.json
 cat local.final.json

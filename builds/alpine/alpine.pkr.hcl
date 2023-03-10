@@ -1,6 +1,6 @@
 variable "mirror" {
-  # default = "https://mirrors.aliyun.com/alpine"
-  default = "https://mirrors.sjtug.sjtu.edu.cn/alpine"
+  default = "https://mirrors.aliyun.com/alpine"
+  # default = "https://mirrors.sjtug.sjtu.edu.cn/alpine"
 }
 variable "version" {
   default = "3.13.2"

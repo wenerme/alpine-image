@@ -23,3 +23,9 @@ clean:
 
 fmt:
 	packer fmt .
+
+dd:
+	[ -n "$(DISK)" ]
+	diskutil umountdisk $(DISK)
+	sudo dd if=dist/$(shell jq -r '.image' local.final.json) of=/dev/r$(DISK) conv=sparse status=progress bs=128MB
+	diskutil eject $(DISK)

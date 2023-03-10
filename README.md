@@ -112,6 +112,8 @@ DISK=disk3
 diskutil umountdisk $DISK
 
 sudo dd if=dist/alpine-lts-3.15.0-x86_64-efi.raw of=/dev/r$DISK conv=sparse status=progress bs=128MB
+
+diskutil eject $DISK
 ```
 
 ### can not boot
