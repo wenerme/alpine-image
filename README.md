@@ -72,9 +72,10 @@ qemu-system-x86_64 -hda ${file%%.gz}
 
 # write to disk or usb
 # macOS use rdisk
-sudo dd if=${file%%.gz} of=/dev/rdisk2 status=progress bs=64M
+diskutil unmountdisk rdisk2
+sudo dd if=${file%%.gz} of=/dev/rdisk2 of=/dev/rdisk2 conv=sparse status=progress bs=128MB
 # Linux use sdx
-sudo dd if=${file%%.gz} of=/dev/sdb status=progress bs=64M
+sudo dd if=${file%%.gz} of=/dev/sdb conv=sparse status=progress bs=128MB
 
 # now you can boot from the external storage
 ```
