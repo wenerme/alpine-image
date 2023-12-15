@@ -29,3 +29,8 @@ dd:
 	diskutil umountdisk $(DISK)
 	sudo dd if=dist/$(shell jq -r '.image' local.final.json) of=/dev/r$(DISK) conv=sparse status=progress bs=128MB
 	diskutil eject $(DISK)
+
+latest:
+	curl -sf https://alpinelinux.org/releases.json | jq '.release_branches[1].releases[0].version' -r
+# https://mirrors.tuna.tsinghua.edu.cn/alpine/latest-stable/
+# https://mirrors.tuna.tsinghua.edu.cn/alpine/v3.18/releases/x86_64/

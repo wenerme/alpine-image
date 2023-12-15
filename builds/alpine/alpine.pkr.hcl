@@ -1,6 +1,10 @@
 variable "mirror" {
-  default = "https://mirrors.aliyun.com/alpine"
-  # default = "https://mirrors.sjtug.sjtu.edu.cn/alpine"
+  # 稳定，同步速度快 - iso 下载失败 - 403
+  # default = "https://mirrors.tuna.tsinghua.edu.cn/alpine"
+  # 稳定，但可能延后 1-2 天
+  # default = "https://mirrors.aliyun.com/alpine"
+  # 大部分时候上海很快，同步最准时，但可能延期 5 6 天
+  default = "https://mirrors.sjtug.sjtu.edu.cn/alpine"
 }
 variable "version" {
   default = "3.13.2"

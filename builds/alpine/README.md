@@ -2,9 +2,9 @@
 
 ```bash
 # Build dist/alpine-lts-3.13.5-x86_64.raw
-flavor=lts format=raw make        # 用于直接 dd 到磁盘
-efi=1 flavor=lts format=raw make  # 用于 阿里云
-flavor=virt format=qcow2 make     # 用于云平台, 本地虚拟机
+flavor=lts format=raw make          # 用于直接 dd 到磁盘
+efi=1 flavor=lts format=qcow2 make  # 用于 阿里云 ARM64 & X86_64
+flavor=virt format=qcow2 make       # 用于云平台, 本地虚拟机
 ```
 
 | var               | default                           |
