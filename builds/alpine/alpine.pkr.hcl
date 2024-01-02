@@ -64,6 +64,7 @@ source "qemu" "alpine" {
   iso_url      = "${var.mirror}/v${local.ver}/releases/${var.arch}/${var.iso}"
   iso_checksum = var.checksums[var.iso]
 
+  // DUEBUG
   // display = "cocoa"
   headless     = true
   accelerator  = var.accel
@@ -82,6 +83,12 @@ source "qemu" "alpine" {
     "setup-interfaces -a<enter>",
     "service networking restart<enter>",
     "echo root:root | chpasswd<enter><wait5>",
+    // alternative vhost-user-rng
+    // "apk update<enter>",
+    // "apk add -X ${var.mirror} -q haveged<enter>",
+    // "service haveged start<enter>",
+
+    // setup ssh
     "setup-sshd -c openssh<enter>",
     "echo PermitRootLogin yes >> /etc/ssh/sshd_config<enter>",
     "service sshd restart<enter>",
@@ -91,6 +98,9 @@ source "qemu" "alpine" {
   format    = var.format
 
   output_directory = var.dist
+  qemuargs = [
+    ["--device","virtio-rng-pci"]
+  ]
 }
 
 build {
