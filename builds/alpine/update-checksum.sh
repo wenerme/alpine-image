@@ -1,3 +1,4 @@
+#!/bin/bash
 
 [ -z "$VER" ] && {
   VER=$(curl -sf https://alpinelinux.org/releases.json | jq '.release_branches[1].releases[0].version' -r)
@@ -11,4 +12,4 @@ CHECKSUM=$CHECKSUM
 "
 
 yq -i ".checksums.\"alpine-virt-$VER-x86_64.iso\"=\"$CHECKSUM\"" checksums.auto.pkrvars.json
-
+yq -i '.checksums |= sort_keys(.)' checksums.auto.pkrvars.json

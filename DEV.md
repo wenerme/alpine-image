@@ -23,8 +23,8 @@ egrep -o 'VERSION_ID=[0-9]+[.]+[0-9]+' /etc/os-release | egrep -o '[0-9]+[.]+[0-
 
 # qemu-system-aarch64: -device virtio-net,netdev=user.0: No 'PCI' bus found for device 'virtio-net-pci'
 
-* 网络设备使用 usb-net
-* QEMU 5.1.0+, 5.0.1+
+- 网络设备使用 usb-net
+- QEMU 5.1.0+, 5.0.1+
 
 ```bash
 qemu-system-aarch64 \
@@ -52,7 +52,7 @@ sudo dd if=images/alpine-lts-3.13.2-x86_64.raw of=/dev/sda conv=sparse status=pr
 
 # qemu boot from disk
 
-* qemu default mac 52:54:00:12:34:56
+- qemu default mac 52:54:00:12:34:56
 
 ```bash
 # -uuid $(dmidecode -s system-uuid) use same uuid as host
