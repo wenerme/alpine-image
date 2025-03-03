@@ -1,10 +1,11 @@
 {
   "checksums": {
-    "alpine-virt-3.20.1-x86_64.iso": "f87a0fd3ab0e65d2a84acd5dad5f8b6afce51cb465f65dd6f8a3810a3723b6e4",
     "alpine-virt-3.15.0-x86_64.iso": "e97eaedb3bff39a081d1d7e67629d5c0e8fb39677d6a9dd1eaf2752e39061e02",
     "alpine-virt-3.17.2-x86_64.iso": "96cd5a0a372b75e9d8607d2df8c3e604326f5c314c8c4f760ff901447a9a7746",
     "alpine-virt-3.18.0-x86_64.iso": "a28ec4931e2bd334b22423baac741c5a371046d0ad8da9650e6c4fcde09e4504",
     "alpine-virt-3.18.4-x86_64.iso": "24d79bc148c05a864c2914dfa41a6ffbf808973e44de88c7700d30b4517965b2",
-    "alpine-virt-3.19.0-x86_64.iso": "95ed37b1e54b04aad1c6ff54a5fd60d904363a2a8810c3e3dfe4c2a29e94056b"
+    "alpine-virt-3.19.0-x86_64.iso": "95ed37b1e54b04aad1c6ff54a5fd60d904363a2a8810c3e3dfe4c2a29e94056b",
+    "alpine-virt-3.20.1-x86_64.iso": "f87a0fd3ab0e65d2a84acd5dad5f8b6afce51cb465f65dd6f8a3810a3723b6e4",
+    "alpine-virt-3.21.3-x86_64.iso": "f28171c35bbf623aa3cbaec4b8b29297f13095b892c1a283b15970f7eb490f2d"
   }
 }

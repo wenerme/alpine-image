@@ -2,9 +2,9 @@ variable "mirror" {
   # 稳定，同步速度快 - iso 下载失败 - 403
   # default = "https://mirrors.tuna.tsinghua.edu.cn/alpine"
   # 稳定，但可能延后 1-2 天
-  # default = "https://mirrors.aliyun.com/alpine"
+  default = "https://mirrors.aliyun.com/alpine"
   # 大部分时候上海很快，同步最准时，但可能延期 5 6 天
-  default = "https://mirrors.sjtug.sjtu.edu.cn/alpine"
+  # default = "https://mirrors.sjtug.sjtu.edu.cn/alpine"
 }
 variable "version" {
   default = "3.13.2"
@@ -64,8 +64,8 @@ source "qemu" "alpine" {
   iso_url      = "${var.mirror}/v${local.ver}/releases/${var.arch}/${var.iso}"
   iso_checksum = var.checksums[var.iso]
 
-  // DUEBUG
-  // display = "cocoa"
+  # DUEBUG
+  # display = "cocoa"
   headless     = true
   accelerator  = var.accel
   qemu_binary  = var.qemu_binary
@@ -99,6 +99,7 @@ source "qemu" "alpine" {
 
   output_directory = var.dist
   qemuargs = [
+    # avoid haveged for rng
     ["--device","virtio-rng-pci"]
   ]
 }
@@ -109,7 +110,7 @@ build {
   # QEMU resolv may not work
   provisioner "shell" {
     inline = [
-      "echo nameserver 114.114.114.114 > /etc/resolve.conf"
+      "echo nameserver 223.5.5.5 > /etc/resolve.conf"
     ]
   }
 
