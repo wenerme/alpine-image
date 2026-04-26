@@ -1,9 +1,10 @@
 variable "mirror" {
-  # 稳定，同步速度快 - iso 下载失败 - 403
-  # default = "https://mirrors.tuna.tsinghua.edu.cn/alpine"
+  # 用于 VM 内 apk 仓库；ISO 下载由 pre.sh 用 curl 预先完成，避免 Packer/Go UA 触发镜像站防护。
+  # 稳定，同步速度快
+  default = "https://mirrors.tuna.tsinghua.edu.cn/alpine"
   # 稳定，但可能延后 1-2 天
-  default = "https://mirrors.aliyun.com/alpine"
-  # 大部分时候上海很快，同步最准时，但可能延期 5 6 天
+  # default = "https://mirrors.aliyun.com/alpine"
+  # 大部分时候上海很快，同步最准时，但 Packer/Go UA 可能触发 Cerberus Challenge 导致 checksum mismatch
   # default = "https://mirrors.sjtug.sjtu.edu.cn/alpine"
 }
 variable "version" {
@@ -25,6 +26,10 @@ variable "arch" {
 }
 variable "iso" {
   default     = "alpine-virt-3.13.0-x86_64.iso"
+}
+variable "iso_url" {
+  default     = ""
+  description = "optional explicit ISO URL; pre.sh sets this to a local file:// URL after curl download"
 }
 variable "accel" {
   default     = "tcg"
@@ -61,7 +66,7 @@ locals {
 }
 
 source "qemu" "alpine" {
-  iso_url      = "${var.mirror}/v${local.ver}/releases/${var.arch}/${var.iso}"
+  iso_url      = var.iso_url != "" ? var.iso_url : "${var.mirror}/v${local.ver}/releases/${var.arch}/${var.iso}"
   iso_checksum = var.checksums[var.iso]
 
   # DUEBUG
