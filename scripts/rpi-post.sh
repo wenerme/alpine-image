@@ -49,7 +49,7 @@ fi
 include usercfg.txt
 "
 
-echo $config > $MNT/boot/config.txt
+printf '%s\n' "$config" > "$MNT/boot/config.txt"
 
 echo "dwc_otg.lpm_enable=0 console=serial0,115200 console=tty1 root=/dev/mmcblk0p2 rootfstype=ext4 elevator=deadline fsck.repair=yes rootwait" > $MNT/boot/cmdline.txt
 

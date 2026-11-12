@@ -22,15 +22,11 @@ setup-user-admin
 setup-boot
 # bash
 
+# Clean and unmount before compressing, so the archive holds a consistent filesystem.
+clean
+umount-all
+
 # useless for gz asset
 # usefull for upload to ecs, aws, aliyun
 # image-shrink
 image-gz
-
-# umount-all
-losetup -D
-
-# cleanup
-mount-all
-clean
-umount-all

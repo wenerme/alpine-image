@@ -1,5 +1,7 @@
 
-: "${ALPINE_RELEASE:=3.12.0}"
+if [ -z "${ALPINE_RELEASE:-}" ]; then
+  ALPINE_RELEASE=$(cat "$(dirname "${BASH_SOURCE[0]}")/../builds/VERSION" 2>/dev/null || echo 3.12.0)
+fi
 : "${ALPINE_VERSION:=${ALPINE_RELEASE%.*}}"
 : "${ALPINE_BRANCH:=v${ALPINE_VERSION}}"
 : "${ALPINE_MIRROR:=https://mirrors.aliyun.com/alpine}"

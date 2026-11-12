@@ -1,51 +1,243 @@
-name: Build Image
+name: Release Alpine images
 
 on:
-  # push:
-  #   branches: [ master ]
-  # pull_request:
-  #   branches: [ master ]
   workflow_dispatch:
+    inputs:
+      version:
+        description: Alpine release version; empty uses builds/VERSION
+        required: false
+        type: string
+        default: ''
+      include_rpi:
+        description: Also build experimental Raspberry Pi images
+        required: true
+        type: boolean
+        default: false
+      dry_run:
+        description: Build and list assets without creating or updating a Release
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: alpine-release-${{ inputs.version || 'builds-version' }}
+  cancel-in-progress: false
 
 jobs:
-  build:
+  prepare:
+    name: Resolve release metadata
     runs-on: ubuntu-latest
-
+    outputs:
+      version: ${{ steps.meta.outputs.version }}
+      tag: ${{ steps.meta.outputs.tag }}
+      title: ${{ steps.meta.outputs.title }}
     steps:
-    - uses: actions/checkout@v2
-    - name: Build Cache
-      id: build-cache
-      uses: actions/cache@v2
-      with:
-        path: cache
-        key: ${{ runner.os }}-build-cache
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
-    - run: |
-        # sudo modprobe binfmt_misc
-        # sudo mount binfmt_misc -t binfmt_misc /proc/sys/fs/binfmt_misc
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: '1.4.4'
 
-        sudo apt update
-        sudo apt install -y qemu-user qemu-user-binfmt
+      - name: Resolve metadata
+        id: meta
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          metadata=$(bun scripts/alpine.ts release-info --version "$INPUT_VERSION")
+          echo "$metadata" | jq -r '"version=\(.version)"' >> "$GITHUB_OUTPUT"
+          echo "$metadata" | jq -r '"tag=\(.tag)"' >> "$GITHUB_OUTPUT"
+          echo "$metadata" | jq -r '"title=\(.title)"' >> "$GITHUB_OUTPUT"
+          {
+            echo '### Release metadata'
+            echo
+            echo "$metadata" | jq
+          } >> "$GITHUB_STEP_SUMMARY"
 
-    - run: ./check-docker-binfmt.sh
+  build:
+    name: Build ${{ matrix.name }}
+    needs: prepare
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: x86_64-lts
+            arch: x86_64
+            flavor: lts
+          - name: x86_64-virt
+            arch: x86_64
+            flavor: virt
+          - name: aarch64-lts
+            arch: aarch64
+            flavor: lts
+          - name: aarch64-virt
+            arch: aarch64
+            flavor: virt
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
-    - run: ARCH=armhf FLAVOR=rpi ./docker-build.sh
-    - run: ARCH=aarch64 FLAVOR=rpi ./docker-build.sh
-    - run: FLAVOR=virt ./docker-build.sh
-    - run: FLAVOR=lts ./docker-build.sh
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: arm64
 
-    - run: ls -hl dist
+      - name: Build image
+        env:
+          ALPINE_RELEASE: ${{ needs.prepare.outputs.version }}
+          ALPINE_MIRROR: https://dl-cdn.alpinelinux.org/alpine
+          ARCH: ${{ matrix.arch }}
+          FLAVOR: ${{ matrix.flavor }}
+        run: ./docker-build.sh
 
-    # attach multi file https://github.com/github/hub/issues/1769#issuecomment-397271041
-    - env:
-        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-      run: |
-        sudo snap install hub --classic
-        build_date=$(date +%Y%m%d)
-        build_number=$[$(git tag | grep $build_date | wc -l) + 1]
-        tag="$build_date.$build_number"
-        
-        assets=()
-        for f in dist/*; do [ -f "$f" ] && assets+=(-a "$f"); done
+      - name: Verify asset
+        env:
+          ALPINE_RELEASE: ${{ needs.prepare.outputs.version }}
+          ARCH: ${{ matrix.arch }}
+          FLAVOR: ${{ matrix.flavor }}
+        run: |
+          set -euo pipefail
+          asset="dist/alpine-${ARCH}-${FLAVOR}-${ALPINE_RELEASE}.img.gz"
+          test -s "$asset"
+          sha256sum "$asset" | tee "$asset.sha256"
 
-        hub release create $tag -m "$tag" "${assets[@]}"
+      - name: Upload image artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: alpine-image-${{ matrix.name }}
+          path: |
+            dist/alpine-${{ matrix.arch }}-${{ matrix.flavor }}-${{ needs.prepare.outputs.version }}.img.gz
+            dist/alpine-${{ matrix.arch }}-${{ matrix.flavor }}-${{ needs.prepare.outputs.version }}.img.gz.sha256
+          if-no-files-found: error
+          retention-days: 1
+
+  rpi:
+    name: Build RPi ${{ matrix.arch }}
+    if: inputs.include_rpi == true
+    needs: prepare
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [armhf, aarch64]
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: arm,arm64
+
+      - name: Build image
+        env:
+          ALPINE_RELEASE: ${{ needs.prepare.outputs.version }}
+          ALPINE_MIRROR: https://dl-cdn.alpinelinux.org/alpine
+          ARCH: ${{ matrix.arch }}
+          FLAVOR: rpi
+        run: ./docker-build.sh
+
+      - name: Verify asset
+        env:
+          ALPINE_RELEASE: ${{ needs.prepare.outputs.version }}
+          ARCH: ${{ matrix.arch }}
+        run: |
+          set -euo pipefail
+          asset="dist/alpine-${ARCH}-rpi-${ALPINE_RELEASE}.img.gz"
+          test -s "$asset"
+          sha256sum "$asset" | tee "$asset.sha256"
+
+      - name: Upload image artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: alpine-image-rpi-${{ matrix.arch }}
+          path: |
+            dist/alpine-${{ matrix.arch }}-rpi-${{ needs.prepare.outputs.version }}.img.gz
+            dist/alpine-${{ matrix.arch }}-rpi-${{ needs.prepare.outputs.version }}.img.gz.sha256
+          if-no-files-found: error
+          retention-days: 1
+
+  release:
+    name: Publish GitHub Release
+    needs: [prepare, build, rpi]
+    if: >-
+      always() && needs.prepare.result == 'success' && needs.build.result == 'success' &&
+      (needs.rpi.result == 'success' || needs.rpi.result == 'skipped')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download image artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: alpine-image-*
+          merge-multiple: true
+          path: dist
+
+      - name: List release assets
+        run: |
+          set -euo pipefail
+          find dist -type f -maxdepth 1 -print -exec ls -lh {} \;
+
+      - name: Create or update Release
+        if: inputs.dry_run != true
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ needs.prepare.outputs.tag }}
+          RELEASE_TITLE: ${{ needs.prepare.outputs.title }}
+          RELEASE_VERSION: ${{ needs.prepare.outputs.version }}
+        run: |
+          set -euo pipefail
+          notes=$(cat <<EOF
+          AlpineLinux ${RELEASE_VERSION} disk images.
+
+          Generated by GitHub Actions from ${GITHUB_SHA}.
+          EOF
+          )
+          set +e
+          release_response=$(gh api --include "repos/${GH_REPO}/releases/tags/${RELEASE_TAG}" 2>&1)
+          release_status=$?
+          set -e
+          if printf '%s\n' "$release_response" | grep -Eq '^HTTP/[0-9.]+ 2[0-9][0-9]'; then
+            gh release upload "$RELEASE_TAG" dist/* --clobber
+          elif printf '%s\n' "$release_response" | grep -Eq '^HTTP/[0-9.]+ 404'; then
+            gh release create "$RELEASE_TAG" dist/* \
+              --target "$GITHUB_SHA" \
+              --title "$RELEASE_TITLE" \
+              --notes "$notes"
+          else
+            printf '%s\n' "$release_response" >&2
+            exit "$release_status"
+          fi
+
+      - name: Dry-run summary
+        if: inputs.dry_run == true
+        env:
+          RELEASE_TAG: ${{ needs.prepare.outputs.tag }}
+          RELEASE_TITLE: ${{ needs.prepare.outputs.title }}
+        run: |
+          {
+            echo '### Dry-run release'
+            echo
+            echo "tag: $RELEASE_TAG"
+            echo "title: $RELEASE_TITLE"
+            echo
+            find dist -maxdepth 1 -type f -print | sort
+          } >> "$GITHUB_STEP_SUMMARY"

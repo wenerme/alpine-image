@@ -8,8 +8,9 @@ chmnt(){
 }
 
 setup-chroot(){
-  cp /etc/apk/repositories /alpine/etc/apk/repositories
-  cp /etc/resolv.conf /alpine/etc/resolv.conf
+  # Use the target release repositories, not the builder's.
+  printf '%s/main\n%s/community\n' "$mirror_base" "$mirror_base" > "$MNT/etc/apk/repositories"
+  cp /etc/resolv.conf "$MNT/etc/resolv.conf"
   [ -d /etc/apk/cache ] && mkdir -p $MNT/etc/apk/cache && mount --bind /etc/apk/cache $MNT/etc/apk/cache 
 
   # none x86 need simulator
@@ -44,7 +45,7 @@ setup-kernel(){
 
 setup-boot(){
   chmnt apk add -q syslinux e2fsprogs
-  local kernel_opts="nomodeset quiet rootfstype=ext4"
+  local kernel_opts=${KERNEL_OPTS:-"nomodeset quiet rootfstype=ext4 console=tty0 console=ttyS0,115200"}
   local modules="sd-mod,usb-storage,ext4"
   local root=$(blkid $ROOT_DEV | sed -nr 's/.*: (UUID="[^"]+").*/\1/p' | tr -d '"')
   local boot=$(blkid $BOOT_DEV | sed -nr 's/.*: (UUID="[^"]+").*/\1/p' | tr -d '"')
@@ -91,15 +92,15 @@ EOF
 setup-service(){
 
 cat <<SH | chmnt /bin/sh
-  [ ! -d /run/openrc ] && openrc sysinit
-  apk add -q openssh haveged
+  apk add -q openssh haveged tzdata
 
   echo ${SYSINIT_SERVICES} | tr ' ' '\n' | xargs -n1 -I {} rc-update --quiet add {} sysinit
   echo ${BOOT_SERVICES} | tr ' ' '\n' | xargs -n1 -I {} rc-update --quiet add {} boot
   echo ${DEFAULT_SERVICES} | tr ' ' '\n' | xargs -n1 -I {} rc-update --quiet add {} default
   echo killprocs mount-ro savecache | tr ' ' '\n' | xargs -n1 -I {} rc-update --quiet add {} shutdown
 
-  setup-timezone -z $TZ
+  ln -sf /usr/share/zoneinfo/$TZ /etc/localtime
+  echo $TZ > /etc/timezone
   setup-keymap us us
 SH
   chmnt rc-update
@@ -118,5 +119,7 @@ clean(){
   clean-chroot
 }
 clean-chroot(){
+  if mountpoint -q "$MNT/etc/apk/cache"; then umount "$MNT/etc/apk/cache"; fi
+  rmdir "$MNT/etc/apk/cache" 2>/dev/null || true
   rm -rf $MNT/var/cache/apk/* $MNT/usr/bin/qemu-* $MNT/etc/resolv.conf || true
 }

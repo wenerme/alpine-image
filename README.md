@@ -1,9 +1,19 @@
 # AlpineLinux pre-build disk images
 
-![Build Image](https://github.com/wenerme/alpine-image/workflows/Build%20Image/badge.svg)
+![Release Alpine images](https://github.com/wenerme/alpine-image/actions/workflows/build.yml/badge.svg)
 
 ```bash
-# building images
+# preferred local entry point
+just version
+just build x86_64 lts
+just build x86_64 virt
+just build aarch64 lts
+just build aarch64 virt
+
+# build the four standard release targets
+just build-all
+
+# legacy Makefile-compatible entry points
 
 # docker based building
 # flavor=virt format=qcow2
@@ -15,6 +25,12 @@ make images/lts/alpine.raw
 cd builds/alpine
 efi=1 flavor=lts format=raw make
 ```
+
+The `Release Alpine images` GitHub Actions workflow is manual. It builds
+`x86_64` and `aarch64` `lts` and `virt` images, then creates a release named
+`AlpineLinux <version>` with the compressed images and SHA-256 files as assets.
+The version defaults to `builds/VERSION`; use the optional `include_rpi` input
+to try the experimental `armhf` and `aarch64` Raspberry Pi targets.
 
 > pre-build disk image can be download from [releases](https://github.com/wenerme/alpine-image/releases)
 
@@ -61,11 +77,10 @@ efi=1 flavor=lts format=raw make
 ## How to use
 
 ```bash
-# All release https://github.com/wenerme/alpine-image/releases
-# latest alpine-virt-3.12.img.gz
-file=alpine-virt-3.12.img.gz
-download_url=$(curl -s https://api.github.com/repos/wenerme/alpine-image/releases/latest | grep $file | sed -rn 's/.*?(https[^"]+).*/\1/p')
-curl -LOC- $download_url
+# Release assets are named alpine-$ARCH-$FLAVOR-$ALPINE_RELEASE.img.gz.
+version=3.24.2
+file=alpine-x86_64-lts-${version}.img.gz
+curl -fLO "https://github.com/wenerme/alpine-image/releases/download/alpine-${version}/${file}"
 gzip -dk $file
 # start by using qemu
 qemu-system-x86_64 -hda ${file%%.gz}
@@ -82,19 +97,19 @@ sudo dd if=${file%%.gz} of=/dev/sdb conv=sparse status=progress bs=128MB
 
 ## Images
 
-- alpine-$FLAVOR-$VERSION-$ARCH.img
+- alpine-$ARCH-$FLAVOR-$ALPINE_RELEASE.img.gz
   - FLAVOR
     - virt
       - for cloud env - aws, gce, aliyun
       - for vm - qemu, libvirt
       - linux without firmware
-    - ltx - Linux 5.14
+    - lts - Linux LTS
       - with firmwares
       - can run on phy machines
     - rpi
       - Raspberry PI
       - armhf - PiZero Pi 1
-      - armv7 - Pi 2, Pi 3
+      - armv7 - Pi 2, Pi 3 (legacy local path)
       - aarch64 - Pi 3, Pi 4
   - ARCH
     - x86_64

@@ -47,8 +47,9 @@ mount-loop(){
 image-mkfs(){
   # mkfs.fat -F32 - rpi
   # -n Alpine-${ARCH}-${FLAVOR}-${ALPINE_VERSION} 
-  ${IMAGE_MKFS_BOOT:-mkfs.ext4} "$BOOT_DEV"
-  ${IMAGE_MKFS_ROOT:-mkfs.ext4} "$ROOT_DEV"
+  # extlinux cannot read ext4 with the 64bit feature; Alpine setup-disk uses the same option.
+  ${IMAGE_MKFS_BOOT:-mkfs.ext4 -q -O ^64bit} "$BOOT_DEV"
+  ${IMAGE_MKFS_ROOT:-mkfs.ext4 -q} "$ROOT_DEV"
 }
 
 mount-root(){
@@ -59,7 +60,8 @@ mount-root(){
 }
 
 umount-root(){
-  umount -lf $MNT
+  sync
+  umount -R "$MNT" || umount -lf "$MNT"
 }
 
 umount-loop(){
@@ -101,5 +103,6 @@ image-shrink(){
 image-gz(){
   everbose Compressing image to dist
   mkdir -p dist
-  pigz -9 -c "$TARGET_IMG" > "dist/alpine-${ARCH}-${FLAVOR}-${ALPINE_VERSION}.img.gz"
+  local output_version=${OUTPUT_VERSION:-$ALPINE_RELEASE}
+  pigz -9 -c "$TARGET_IMG" > "dist/alpine-${ARCH}-${FLAVOR}-${output_version}.img.gz"
 }
