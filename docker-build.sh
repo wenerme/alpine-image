@@ -35,6 +35,8 @@ DOCKER_ARGS=(
   "IMAGE_SIZE=$IMAGE_SIZE"
   "FLAVOR=$FLAVOR"
   "ARCH=$ARCH"
+  "HOST_UID=$(id -u)"
+  "HOST_GID=$(id -g)"
   ./build.sh
 )
 docker-run

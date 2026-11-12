@@ -31,3 +31,6 @@ umount-all
 # usefull for upload to ecs, aws, aliyun
 # image-shrink
 image-gz
+
+# docker-build.sh passes the caller ids so the output is not left owned by root.
+if [ -n "${HOST_UID:-}" ]; then chown -R "$HOST_UID:${HOST_GID:-$HOST_UID}" dist; fi
