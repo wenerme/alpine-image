@@ -117,6 +117,16 @@ cat <<SH | chmnt /bin/sh
   setup-keymap us us
 SH
   chmnt rc-update
+  setup-serial-getty
+}
+
+# Alpine leaves the serial getty disabled; VM and cloud consoles need it to log in.
+setup-serial-getty(){
+  [ "$FLAVOR" = rpi ] && return 0
+  local tty=ttyS0
+  case $ARCH in aarch64|arm*) tty=ttyAMA0 ;; esac
+  grep -q "^${tty}::" "$MNT/etc/inittab" || echo "${tty}::respawn:/sbin/getty -L 115200 ${tty} vt100" >> "$MNT/etc/inittab"
+  grep -qx "$tty" "$MNT/etc/securetty" 2>/dev/null || echo "$tty" >> "$MNT/etc/securetty"
 }
 
 setup-conf(){
