@@ -24,3 +24,10 @@ packer/
 
 local*.json
 *.iso
+*.local.md
+*.local.just
+local.just
+local/
+.agents
+.vscode
+node_modules/

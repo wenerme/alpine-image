@@ -6,7 +6,7 @@ build: local.final.json
 	mkdir -p dist
 	mv images/packer-alpine dist/$$(jq -r .image local.final.json)
 
-.PHONEY: always
+.PHONY: always
 always:
 
 local.final.json: always
@@ -20,9 +20,9 @@ boot:
 	qemu-system-x86_64 $(QEMU_FLAGS) -m 4G -smp 2 -net nic -nic user,hostfwd=tcp::2222-:22 -drive if=virtio,file=$(IMAGE_FILE)
 
 boot-efi:
-	qemu-system-x86_64 $(QEMU_FLAGS) -m 4G -smp 2 -net nic -nic user,hostfwd=tcp::2222-:22 -drive if=virtio,file=$(IMAGE_FILE) -drive if=pflash,format=raw,readonly,file=OVMF/OVMF_CODE.fd
+	qemu-system-x86_64 $(QEMU_FLAGS) -m 4G -smp 2 -net nic -nic user,hostfwd=tcp::2222-:22 -drive if=virtio,file=$(IMAGE_FILE) -drive if=pflash,format=raw,readonly=on,file=OVMF/OVMF_CODE.fd -drive if=pflash,format=raw,file=OVMF/OVMF_VARS.fd
 
-.PHONEY: clean
+.PHONY: clean
 clean:
 	rm -rf images packer_cache
 
@@ -41,4 +41,4 @@ latest:
 # https://mirrors.tuna.tsinghua.edu.cn/alpine/v3.21/releases/x86_64/
 
 update-checksum:
-	bash ./update-checksum.sh
+	FLAVOR=$(if $(filter lts standard,$(flavor)),standard,virt) bash ./update-checksum.sh

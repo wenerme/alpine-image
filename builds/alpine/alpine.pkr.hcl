@@ -25,7 +25,7 @@ variable "arch" {
   description = "arch of vm"
 }
 variable "iso" {
-  default     = "alpine-virt-3.13.0-x86_64.iso"
+  default = "alpine-virt-3.13.0-x86_64.iso"
 }
 variable "iso_url" {
   default     = ""
@@ -105,7 +105,7 @@ source "qemu" "alpine" {
   output_directory = var.dist
   qemuargs = [
     # avoid haveged for rng
-    ["--device","virtio-rng-pci"]
+    ["--device", "virtio-rng-pci"]
   ]
 }
 
@@ -115,13 +115,13 @@ build {
   # QEMU resolv may not work
   provisioner "shell" {
     inline = [
-      "echo nameserver 223.5.5.5 > /etc/resolve.conf"
+      "echo nameserver 223.5.5.5 > /etc/resolv.conf"
     ]
   }
 
   provisioner "breakpoint" {
     disable = true
-    note = "debug vm before install"
+    note    = "debug vm before install"
   }
 
   provisioner "shell" {
