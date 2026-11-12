@@ -78,7 +78,7 @@ to try the experimental `armhf` and `aarch64` Raspberry Pi targets.
 
 ```bash
 # Release assets are named alpine-$ARCH-$FLAVOR-$ALPINE_RELEASE.img.gz.
-version=3.24.2
+version=3.24.4
 file=alpine-x86_64-lts-${version}.img.gz
 curl -fLO "https://github.com/wenerme/alpine-image/releases/download/alpine-${version}/${file}"
 gzip -dk $file

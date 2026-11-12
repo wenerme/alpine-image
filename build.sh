@@ -13,6 +13,7 @@ mount-root
 
 setup-rootfs
 setup-chroot
+setup-mkinitfs
 setup-kernel
 setup-service
 

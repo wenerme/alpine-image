@@ -1,11 +1,22 @@
 # syslinux is x86 only; aarch64 images boot with a standalone GRUB EFI binary on the ESP.
 setup-boot(){
-  chmnt apk add -q grub grub-efi e2fsprogs dosfstools
-
   local root boot
   root=$(blkid -s UUID -o value "$ROOT_DEV")
   boot=$(blkid -s UUID -o value "$BOOT_DEV")
   local kernel_opts=${KERNEL_OPTS:-"modules=sd-mod,usb-storage,ext4 rootfstype=ext4 quiet console=tty0 console=ttyAMA0,115200"}
+
+  # Used when grub-mkconfig regenerates the config on a booted system after a grub upgrade.
+  mkdir -p "$MNT/etc/default"
+  cat > "$MNT/etc/default/grub" <<GRUB
+GRUB_TIMEOUT=2
+GRUB_DISABLE_SUBMENU=y
+GRUB_DISABLE_RECOVERY=true
+GRUB_CMDLINE_LINUX_DEFAULT="${kernel_opts}"
+GRUB
+
+  chmnt apk add -q e2fsprogs dosfstools
+  # The grub trigger runs grub-mkconfig against the build host; the config is written below instead.
+  chmnt apk add -q --no-scripts grub grub-efi
 
   mkdir -p "$MNT/boot/EFI/BOOT" "$MNT/boot/grub"
   # The prefix has no device, so GRUB reads /grub from the partition it was loaded from.

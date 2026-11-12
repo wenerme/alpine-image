@@ -11,6 +11,10 @@ setup-chroot(){
   # Use the target release repositories, not the builder's.
   printf '%s/main\n%s/community\n' "$mirror_base" "$mirror_base" > "$MNT/etc/apk/repositories"
   cp /etc/resolv.conf "$MNT/etc/resolv.conf"
+  # Bootloader tools resolve devices through /dev and /proc; umount-root -R removes these mounts.
+  mount --bind /dev "$MNT/dev"
+  mount -t proc proc "$MNT/proc"
+  mount -t sysfs sysfs "$MNT/sys"
   [ -d /etc/apk/cache ] && mkdir -p $MNT/etc/apk/cache && mount --bind /etc/apk/cache $MNT/etc/apk/cache 
 
   # none x86 need simulator
@@ -36,7 +40,16 @@ setup-chroot(){
     eerror chroot failed
   }
   chmnt apk update
+  # The minirootfs can lag behind the branch; bring it to the latest packages first.
+  chmnt apk upgrade -q
   chmnt apk add -q alpine-base
+}
+
+# Must run before the kernel is installed: the kernel trigger builds the initramfs from this file.
+# Without kms the initramfs does not pull GPU drivers and their firmware into /boot.
+setup-mkinitfs(){
+  mkdir -p "$MNT/etc/mkinitfs"
+  echo "features=\"${MKINITFS_FEATURES:-ata base ide scsi usb virtio ext4 nvme mmc}\"" > "$MNT/etc/mkinitfs/mkinitfs.conf"
 }
 
 setup-kernel(){

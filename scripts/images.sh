@@ -8,7 +8,7 @@ image-create(){
 }
 
 image-partation(){
-  local boot_size=${BOOT_SIZE:-100MB}
+  local boot_size=${BOOT_SIZE:-256MB}
   # 83 - Linux
   # c - win fat32 -rpi
   local boot_part_type=${BOOT_PART_TYPE:-83}
