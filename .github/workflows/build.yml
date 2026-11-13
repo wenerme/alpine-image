@@ -8,11 +8,6 @@ on:
         required: false
         type: string
         default: ''
-      include_rpi:
-        description: Also build experimental Raspberry Pi images
-        required: true
-        type: boolean
-        default: false
       dry_run:
         description: Build and list assets without creating or updating a Release
         required: true
@@ -123,62 +118,10 @@ jobs:
           if-no-files-found: error
           retention-days: 1
 
-  rpi:
-    name: Build RPi ${{ matrix.arch }}
-    if: inputs.include_rpi == true
-    needs: prepare
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        arch: [armhf, aarch64]
-    permissions:
-      contents: read
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-        with:
-          platforms: arm,arm64
-
-      - name: Build image
-        env:
-          ALPINE_RELEASE: ${{ needs.prepare.outputs.version }}
-          ALPINE_MIRROR: https://dl-cdn.alpinelinux.org/alpine
-          ARCH: ${{ matrix.arch }}
-          FLAVOR: rpi
-        run: ./docker-build.sh
-
-      - name: Verify asset
-        env:
-          ALPINE_RELEASE: ${{ needs.prepare.outputs.version }}
-          ARCH: ${{ matrix.arch }}
-        run: |
-          set -euo pipefail
-          asset="dist/alpine-${ARCH}-rpi-${ALPINE_RELEASE}.img.gz"
-          test -s "$asset"
-          sha256sum "$asset" | tee "$asset.sha256"
-
-      - name: Upload image artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: alpine-image-rpi-${{ matrix.arch }}
-          path: |
-            dist/alpine-${{ matrix.arch }}-rpi-${{ needs.prepare.outputs.version }}.img.gz
-            dist/alpine-${{ matrix.arch }}-rpi-${{ needs.prepare.outputs.version }}.img.gz.sha256
-          if-no-files-found: error
-          retention-days: 1
 
   release:
     name: Publish GitHub Release
-    needs: [prepare, build, rpi]
-    if: >-
-      always() && needs.prepare.result == 'success' && needs.build.result == 'success' &&
-      (needs.rpi.result == 'success' || needs.rpi.result == 'skipped')
+    needs: [prepare, build]
     runs-on: ubuntu-latest
     permissions:
       contents: write

@@ -42,6 +42,14 @@ mount-loop(){
   LOOP_DEV=$(losetup --partscan --show --find "${TARGET_IMG}")
   BOOT_DEV="$LOOP_DEV"p1
   ROOT_DEV="$LOOP_DEV"p2
+  # Partition nodes show up asynchronously, and later in VM based Docker such as OrbStack.
+  local i
+  for i in $(seq 1 50); do
+    [ -b "$BOOT_DEV" ] && [ -b "$ROOT_DEV" ] && return 0
+    sleep 0.2
+  done
+  eerror "partitions of $LOOP_DEV did not appear"
+  return 1
 }
 
 image-mkfs(){

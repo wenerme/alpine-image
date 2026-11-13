@@ -15,7 +15,9 @@ RUN apk add --no-cache \
     qemu-aarch64 \
     qemu-arm \
     sfdisk \
-    syslinux \
     umount \
     util-linux-misc \
     wget
+
+# syslinux only exists on x86; arm hosts (e.g. Apple Silicon) can still build arm and RPi images.
+RUN case "$(apk --print-arch)" in x86*) apk add --no-cache syslinux ;; esac

@@ -29,8 +29,8 @@ efi=1 flavor=lts format=raw make
 The `Release Alpine images` GitHub Actions workflow is manual. It builds
 `x86_64` and `aarch64` `lts` and `virt` images, then creates a release named
 `AlpineLinux <version>` with the compressed images and SHA-256 files as assets.
-The version defaults to `builds/VERSION`; use the optional `include_rpi` input
-to try the experimental `armhf` and `aarch64` Raspberry Pi targets.
+The version defaults to `builds/VERSION`. Raspberry Pi images are built locally
+only and are not part of the release.
 
 > pre-build disk image can be download from [releases](https://github.com/wenerme/alpine-image/releases)
 
@@ -183,43 +183,30 @@ docker run --rm -it \
   --name builder wener/alpine-image-builder
 ```
 
-## Dev Pi
+## Raspberry Pi
+
+Built locally, not released. One `linux-rpi` kernel covers the boards of each
+architecture: `aarch64` Pi 3/4/5, `armv7` Pi 2/3/4, `armhf` Pi Zero/1/2/3.
 
 ```bash
-curl -O https://mirrors.tuna.tsinghua.edu.cn/alpine/v3.12/releases/aarch64/alpine-rpi-3.12.0-aarch64.tar.gz
-mkdir -p aarch64/rpi
-tar zxf alpine-rpi-3.12.0-aarch64.tar.gz -C aarch64/rpi
+just build-rpi aarch64      # or: ARCH=aarch64 FLAVOR=rpi ./docker-build.sh
+just build-rpi armhf
+# dist/alpine-<arch>-rpi-<version>.img.gz, write it to an SD card or USB disk
+pigz -dc dist/alpine-aarch64-rpi-*.img.gz | sudo dd of=/dev/sdX bs=4M conv=fsync
+```
 
+- 1G image: FAT32 `RPI-BOOT` partition with firmware, kernel, dtbs and overlays; ext4 root.
+- `cmdline.txt` and `fstab` mount root by UUID, so SD card and USB boot both work.
+- Put local changes in `/boot/usercfg.txt`, for example `enable_uart=1`.
+- Docker on Apple Silicon (OrbStack) builds the arm targets natively.
 
-ARCH=aarch64 FLAVOR=rpi ./docker-build.sh
+Quick check with QEMU, which reaches the root mount but is too slow for a full boot:
 
-# aarch64 RPi 3B
-# Keybord and network seems not working
-#
-# cmdline for stdio
-# console=ttyAMA0,115200 kgdboc=ttyAMA0,115200 root=/dev/mmcblk0p2 rootfstype=ext4 rootwait
-# cmdline for pi
-# dwc_otg.lpm_enable=0 console=serial0,115200 console=tty1 root=/dev/mmcblk0p2 rootfstype=ext4 elevator=deadline fsck.repair=yes rootwait
-# dtbs
-# bcm2710-rpi-3-b.dtb bcm2837-rpi-3-b.dtb
-qemu-system-aarch64 -M raspi3 \
-  -append "console=ttyAMA0,115200 kgdboc=ttyAMA0,115200 root=/dev/mmcblk0p2 rootfstype=ext4 rootwait" \
-  -serial stdio \
-  -dtb aarch64/rpi/bcm2837-rpi-3-b.dtb \
-  -kernel aarch64/rpi/boot/vmlinuz-rpi -initrd aarch64/rpi/boot/initramfs-rpi \
-  -sd alpine-aarch64-rpi.img
-
-# armhf RPi 3B
-wget -qcN https://mirrors.tuna.tsinghua.edu.cn/alpine/v3.12/releases/armhf/alpine-rpi-3.12.0-armhf.tar.gz
-mkdir -p armhf/rpi
-tar zxf alpine-rpi-3.12.0-armhf.tar.gz -C armhf/rpi
-
-qemu-system-arm -M raspi2 \
-  -append "console=ttyAMA0,115200 kgdboc=ttyAMA0,115200 root=/dev/mmcblk0p2 rootfstype=ext4 rootwait" \
-  -serial stdio \
-  -dtb armhf/rpi/bcm2710-rpi-2-b.dtb \
-  -kernel armhf/rpi/boot/vmlinuz-rpi2 -initrd armhf/rpi/boot/initramfs-rpi2 \
-  -sd alpine-armhf-rpi.img
+```bash
+qemu-system-aarch64 -M raspi3b -m 1G -nographic \
+  -dtb bcm2710-rpi-3-b.dtb -kernel vmlinuz-rpi -initrd initramfs-rpi \
+  -drive if=sd,format=raw,file=alpine-aarch64-rpi.img \
+  -append "$(cat cmdline.txt) earlycon=pl011,0x3f201000 console=ttyAMA0,115200"
 ```
 
 ## Roadmap

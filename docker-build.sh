@@ -9,7 +9,8 @@ repo_root=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 : "${ALPINE_MIRROR:=https://mirrors.aliyun.com/alpine}"
 : "${BUILDER_IMAGE:=alpine-image-builder:local}"
 : "${BUILDER_NAME:=builder-${ARCH}-${FLAVOR}-$$}"
-: "${IMAGE_SIZE:=2G}"
+# RPi images only hold the kernel and firmware for the boards, 1G is enough.
+if [ "$FLAVOR" = rpi ]; then : "${IMAGE_SIZE:=1G}"; else : "${IMAGE_SIZE:=2G}"; fi
 : "${verbose:=1}"
 : "${profile:=$FLAVOR}"
 : "${conf:=}"

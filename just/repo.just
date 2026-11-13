@@ -28,7 +28,7 @@ build-all version='':
     just --jobs 4 build aarch64 lts "$version"
     just --jobs 4 build aarch64 virt "$version"
 
-# Build an optional Raspberry Pi image.
+# Build a Raspberry Pi image locally (not released).
 [script('bash')]
 build-rpi arch='aarch64' version='':
     set -euo pipefail
